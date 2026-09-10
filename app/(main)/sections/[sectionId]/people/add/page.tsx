@@ -46,25 +46,45 @@ export default function AddPersonPage() {
     if (value !== "أخرى") setCustomRelation("");
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+//   async function handleSubmit(e: React.FormEvent) {
+//     e.preventDefault();
+//     if (!name.trim() || saving) return;
+
+//     setSaving(true);
+//     try {
+//       const finalRelation = relation === "أخرى" ? customRelation.trim() || undefined : relation ?? undefined;
+//       const person = await addPerson({
+//         sectionId,
+//         name: name.trim(),
+//         relation: finalRelation,
+//         avatarFile: avatarFile ?? undefined,
+//       });
+//       router.push(`/sections/${sectionId}/people/${person.id}`);
+//     } catch {
+//       setSaving(false);
+//     }
+//   }
+async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || saving) return;
 
     setSaving(true);
     try {
       const finalRelation = relation === "أخرى" ? customRelation.trim() || undefined : relation ?? undefined;
-      const person = await addPerson({
+      await addPerson({
         sectionId,
         name: name.trim(),
         relation: finalRelation,
         avatarFile: avatarFile ?? undefined,
       });
-      router.push(`/sections/${sectionId}/people/${person.id}`);
+      
+      // التعديل هنا: التوجيه لصفحة القسم بدلاً من صفحة الشخص
+      router.push(`/sections/${sectionId}`); 
+      
     } catch {
       setSaving(false);
     }
   }
-
   return (
     <>
        <TopAppBar
