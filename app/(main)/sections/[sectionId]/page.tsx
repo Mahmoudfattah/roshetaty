@@ -6,7 +6,7 @@ import Link from "next/link";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { Button } from "@/components/ui/Button";
-import Icon  from "@/components/ui/Icon";
+import  Icon  from "@/components/ui/Icon";
 import { PersonAvatar } from "@/components/ui/ListRow";
 import { toArabicDigits, formatArabicDate } from "@/lib/utils";
 import { getSection, getSectionPeopleSummary, type PersonSummary } from "@/lib/repository";
@@ -42,19 +42,8 @@ export default function SectionPage() {
   if (section === null) {
     return (
       <>
-        <TopAppBar
-               logoSrc="/logo1.png"
-               trailing={
-                 <button
-                   aria-label="مركز التنبيهات"
-                   type="button"
-                   className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-                 >
-                   <Icon name="notifications" className="text-[26px]" />
-                 </button>
-               }
-             />
-        <TopBar title="  " onBack={() => router.back()} />
+        <TopAppBar />
+        <TopBar title="القسم غير موجود" onBack={() => router.back()} />
         <p className="text-body-muted text-on-surface-variant text-center py-16">
           يمكن يكون القسم ده اتحذف. ارجع للرئيسية وجرّب تاني.
         </p>
@@ -67,21 +56,21 @@ export default function SectionPage() {
   return (
     <>
       <TopAppBar
-               logoSrc="/logo1.png"
-               trailing={
-                 <button
-                   aria-label="مركز التنبيهات"
-                   type="button"
-                   className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-                 >
-                   <Icon name="notifications" className="text-[26px]" />
-                 </button>
-               }
-             />
+                       logoSrc="/logo1.png"
+                       trailing={
+                         <button
+                           aria-label="مركز التنبيهات"
+                           type="button"
+                           className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+                         >
+                           <Icon name="notifications" className="text-[26px]" />
+                         </button>
+                       }
+                     />
 
       <TopBar
         title={section?.name ?? "جاري التحميل..."}
-        onBack={() => router.push("/")}
+        onBack={() => router.back()}
         iconNode={
           section && (
             <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary flex-shrink-0">
@@ -156,9 +145,11 @@ export default function SectionPage() {
           </p>
         )}
 
-        <Button variant="soft" icon="person_add" className="mt-2 h-[52px]">
-          + إضافة شخص جديد
-        </Button>
+        <Link href={`/sections/${sectionId}/people/add`}>
+          <Button variant="soft" icon="person_add" fullWidth className="mt-2 h-[52px]">
+            + إضافة شخص جديد
+          </Button>
+        </Link>
       </div>
 
       {/* ملاحظة طمأنة */}

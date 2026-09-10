@@ -23,6 +23,7 @@ export default function AddPrescriptionPage() {
   }>();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewUrlRef = useRef<string | null>(null);
 
   const [person, setPerson] = useState<Person | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -39,18 +40,19 @@ export default function AddPrescriptionPage() {
   }, [personId]);
 
   useEffect(() => {
-    if (!file) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+    return () => {
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    };
+  }, []);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0];
-    if (selected) setFile(selected);
+    if (!selected) return;
+
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    previewUrlRef.current = URL.createObjectURL(selected);
+    setFile(selected);
+    setPreviewUrl(previewUrlRef.current);
   }
 
   async function handleSave() {
@@ -99,7 +101,7 @@ export default function AddPrescriptionPage() {
         ) : (
           <div className="bg-surface-container-lowest rounded-xl p-card-pad shadow-sm mb-6 flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <div className="relative w-[72px] h-[72px] flex-shrink-0 rounded-xl overflow-hidden shadow-sm bg-surface-container">
+              <div className="relative w-18 h-18 shrink-0 rounded-xl overflow-hidden shadow-sm bg-surface-container">
                 <Image
                   src={previewUrl}
                   alt="معاينة الروشتة"
@@ -213,7 +215,7 @@ export default function AddPrescriptionPage() {
         </div>
 
         <div className="bg-surface-container-low rounded-xl p-card-pad mb-8 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
             <Icon name="cloud_done" className="text-[24px]" />
           </div>
           <p className="text-label-caption text-on-surface-variant leading-relaxed">
