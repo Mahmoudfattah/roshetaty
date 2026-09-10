@@ -222,17 +222,35 @@ export default function PrescriptionDetailsPage({ params }: PageProps) {
         </section>
 
         {/* === شريط الأزرار السفلي === */}
-        <section className="flex gap-3 pt-4">
-          <Button variant="destructive" className="px-0 w-14 rounded-xl shrink-0" onClick={handleDelete} aria-label="حذف">
-            <Icon name="delete" className="text-[24px]" />
-          </Button>
-          <Button variant="soft" className="flex-1 rounded-xl" icon="edit">
-            تعديل
-          </Button>
-          <Button variant="primary" className="flex-1 rounded-xl" icon="share">
-            مشاركة
-          </Button>
-        </section>
+       <section className="flex gap-2 sm:gap-3 pt-4">
+  {/* زر الحذف */}
+  <Button 
+    variant="destructive" 
+    className="px-0 w-12 sm:w-14 rounded-xl shrink-0" 
+    onClick={handleDelete} 
+    aria-label="حذف"
+  >
+    <Icon name="delete" className="text-[22px] sm:text-[24px]" />
+  </Button>
+
+  {/* زر التعديل */}
+  <Button 
+    variant="soft" 
+    className="flex-1 rounded-xl px-2 gap-1 text-sm sm:px-4 sm:gap-3 sm:text-base whitespace-nowrap" 
+    icon="edit"
+  >
+    تعديل
+  </Button>
+
+  {/* زر المشاركة */}
+  <Button 
+    variant="primary" 
+    className="flex-1 rounded-xl px-2 gap-1 text-sm sm:px-4 sm:gap-3 sm:text-base whitespace-nowrap" 
+    icon="share"
+  >
+    مشاركة
+  </Button>
+</section>
       </div>
 
       {/* === نافذة التكبير (Fullscreen Modal) === */}
