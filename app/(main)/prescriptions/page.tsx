@@ -49,9 +49,20 @@ export default function AllPrescriptionsPage() {
 
   return (
     <>
-      <TopAppBar />
+       <TopAppBar
+                             logoSrc="/logo1.png"
+                             trailing={
+                               <button
+                                 aria-label="مركز التنبيهات"
+                                 type="button"
+                                 className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+                               >
+                                 <Icon name="notifications" className="text-[26px]" />
+                               </button>
+                             }
+                           />
 
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full pt-5">
         {/* عنوان الشاشة + زرار الفرز */}
         <div className="flex items-center justify-between w-full mb-6">
           <div className="flex items-center gap-2">

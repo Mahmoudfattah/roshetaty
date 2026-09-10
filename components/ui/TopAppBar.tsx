@@ -18,12 +18,22 @@ interface TopAppBarProps {
 }
 
 export function TopAppBar({
-  logoSrc,
+  // خلينا اللوجو الافتراضي هو logo1.png
+  logoSrc = "/logo1.png",
   title,
   eyebrow,
   onBack,
   avatarSrc,
-  trailing,
+  // خلينا زرار التنبيهات هو العنصر الافتراضي في اليمين
+  trailing = (
+    <button
+      aria-label="مركز التنبيهات"
+      type="button"
+      className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+    >
+      <Icon name="notifications" className="text-[26px]" />
+    </button>
+  ),
 }: TopAppBarProps) {
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
