@@ -114,6 +114,7 @@ export async function addPrescription(input: {
   personId: string;
   sectionId: string;
   doctorName?: string;
+  clinicName?: string;
   visitDate: string;
   imageFile: File;
   note?: string;
@@ -126,6 +127,7 @@ export async function addPrescription(input: {
     personId: input.personId,
     sectionId: input.sectionId,
     doctorName: input.doctorName,
+    clinicName: input.clinicName,
     visitDate: input.visitDate,
     imageBlobId,
     note: input.note,

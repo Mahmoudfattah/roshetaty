@@ -22,6 +22,7 @@ export interface Prescription {
   personId: string;
   sectionId: string;
   doctorName?: string;
+  clinicName?: string;
   /** تاريخ الزيارة بصيغة ISO "2025-01-14" عشان الترتيب يبقى صح */
   visitDate: string;
   /** مفتاح صورة الروشتة المحفوظة في IndexedDB */
