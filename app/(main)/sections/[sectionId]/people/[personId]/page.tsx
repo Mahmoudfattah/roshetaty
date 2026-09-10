@@ -3,24 +3,41 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { Button } from "@/components/ui/Button";
-import  Icon  from "@/components/ui/Icon";
-import { PersonAvatar } from "@/components/ui/ListRow";
-import { PrescriptionCard, YearDivider } from "@/components/ui/PrescriptionCard";
+import Icon from "@/components/ui/Icon";
+import {
+  PrescriptionCard,
+  YearDivider,
+} from "@/components/ui/PrescriptionCard";
 import { useImageUrl } from "@/lib/hooks/useImageUrl";
-import { toArabicDigits, formatArabicDate, formatRelativeArabic } from "@/lib/utils";
-import { getPerson, getSection, getPrescriptionsByPerson } from "@/lib/repository";
+import {
+  toArabicDigits,
+  formatArabicDate,
+  formatRelativeArabic,
+} from "@/lib/utils";
+import {
+  getPerson,
+  getSection,
+  getPrescriptionsByPerson,
+} from "@/lib/repository";
 import type { Person, Section, Prescription } from "@/lib/types";
 import { TopBar } from "@/components/ui/TopBar";
 
 export default function PersonPage() {
-  const { sectionId, personId } = useParams<{ sectionId: string; personId: string }>();
+  const { sectionId, personId } = useParams<{
+    sectionId: string;
+    personId: string;
+  }>();
   const router = useRouter();
 
   const [person, setPerson] = useState<Person | null | undefined>(undefined);
   const [section, setSection] = useState<Section | null>(null);
-  const [prescriptions, setPrescriptions] = useState<Prescription[] | null>(null);
+  const [prescriptions, setPrescriptions] = useState<Prescription[] | null>(
+    null,
+  );
+  const avatarUrl = useImageUrl(person?.avatarBlobId);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,31 +81,28 @@ export default function PersonPage() {
 
   const lastAddedAt = prescriptions?.reduce<string | undefined>(
     (latest, p) => (!latest || p.createdAt > latest ? p.createdAt : latest),
-    undefined
+    undefined,
   );
 
   const groupedByYear = groupPrescriptionsByYear(prescriptions ?? []);
 
   return (
     <>
+      <TopAppBar
+        logoSrc="/logo1.png"
+        trailing={
+          <button
+            aria-label="مركز التنبيهات"
+            type="button"
+            className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+          >
+            <Icon name="notifications" className="text-[26px]" />
+          </button>
+        }
+      />
 
-
-
-       <TopAppBar
-            logoSrc="/logo1.png"
-            trailing={
-              <button
-                aria-label="مركز التنبيهات"
-                type="button"
-                className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-              >
-                <Icon name="notifications" className="text-[26px]" />
-              </button>
-            }
-          />
-
-          <TopBar title="  " onBack={() => router.back()} />
-{/*     
+      <TopBar title="  " onBack={() => router.back()} />
+      {/*     
       <TopAppBar
         title={person?.name ?? "جاري التحميل..."}
         onBack={() => router.push(`/sections/${sectionId}`)}
@@ -98,7 +112,20 @@ export default function PersonPage() {
         {/* بطاقة بيانات الشخص */}
         <section className="bg-surface-container-lowest rounded-xl shadow-sm p-card-pad flex flex-col gap-3 ">
           <div className="flex items-center gap-touch-gap">
-            <PersonAvatar alt={person?.name ?? ""} size="sm" />
+            <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full bg-primary-container text-on-primary shadow-sm flex items-center justify-center text-card-title font-bold">
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt={person?.name ?? "صورة الشخص"}
+                  fill
+                  className="object-cover"
+                  sizes="48px"
+                  unoptimized
+                />
+              ) : (
+                person?.name?.trim().charAt(0)
+              )}
+            </div>
             <div className="flex flex-col min-w-0">
               <h2 className="text-section-title text-primary-container truncate leading-snug">
                 {person?.name}
@@ -130,7 +157,7 @@ export default function PersonPage() {
 
         {/* زرار الإضافة — ثابت جوه الصفحة مش عايم */}
         <Link href={`/sections/${sectionId}/people/${personId}/add`}>
-          <Button icon="photo_camera" fullWidth className="h-[52px]">
+          <Button icon="photo_camera" fullWidth className="h-touch-min">
             + إضافة روشتة جديدة
           </Button>
         </Link>
@@ -163,7 +190,10 @@ export default function PersonPage() {
 
           {prescriptions && prescriptions.length > 0 && (
             <div className="flex flex-col items-center gap-2 py-6 text-on-surface-variant">
-              <Icon name="check_circle" className="text-[24px] text-secondary" />
+              <Icon
+                name="check_circle"
+                className="text-[24px] text-secondary"
+              />
               <span className="text-label-caption">
                 تم استعراض جميع الروشتات المحفوظة
               </span>
@@ -197,7 +227,9 @@ function PrescriptionCardItem({
   );
 }
 
-function groupPrescriptionsByYear(prescriptions: Prescription[]): [string, Prescription[]][] {
+function groupPrescriptionsByYear(
+  prescriptions: Prescription[],
+): [string, Prescription[]][] {
   const map = new Map<string, Prescription[]>();
   for (const p of prescriptions) {
     const year = p.visitDate.slice(0, 4);
@@ -210,7 +242,10 @@ function TimelineSkeleton() {
   return (
     <div className="flex flex-col gap-touch-gap" aria-hidden="true">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="h-[76px] rounded-xl bg-surface-container-lowest animate-pulse" />
+        <div
+          key={i}
+          className="h-19 rounded-xl bg-surface-container-lowest animate-pulse"
+        />
       ))}
     </div>
   );

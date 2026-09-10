@@ -6,11 +6,16 @@ import Link from "next/link";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { Button } from "@/components/ui/Button";
-import  Icon  from "@/components/ui/Icon";
+import Icon from "@/components/ui/Icon";
 import { PersonAvatar } from "@/components/ui/ListRow";
+import { useImageUrl } from "@/lib/hooks/useImageUrl";
 import { toArabicDigits, formatArabicDate } from "@/lib/utils";
-import { getSection, getSectionPeopleSummary, type PersonSummary } from "@/lib/repository";
-import type { Section } from "@/lib/types";
+import {
+  getSection,
+  getSectionPeopleSummary,
+  type PersonSummary,
+} from "@/lib/repository";
+import type { Person, Section } from "@/lib/types";
 
 export default function SectionPage() {
   const { sectionId } = useParams<{ sectionId: string }>();
@@ -51,22 +56,23 @@ export default function SectionPage() {
     );
   }
 
-  const totalPrescriptions = people?.reduce((sum, p) => sum + p.prescriptionCount, 0) ?? 0;
+  const totalPrescriptions =
+    people?.reduce((sum, p) => sum + p.prescriptionCount, 0) ?? 0;
 
   return (
     <>
       <TopAppBar
-                       logoSrc="/logo1.png"
-                       trailing={
-                         <button
-                           aria-label="مركز التنبيهات"
-                           type="button"
-                           className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-                         >
-                           <Icon name="notifications" className="text-[26px]" />
-                         </button>
-                       }
-                     />
+        logoSrc="/logo1.png"
+        trailing={
+          <button
+            aria-label="مركز التنبيهات"
+            type="button"
+            className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+          >
+            <Icon name="notifications" className="text-[26px]" />
+          </button>
+        }
+      />
 
       <TopBar
         title={section?.name ?? "جاري التحميل..."}
@@ -92,13 +98,16 @@ export default function SectionPage() {
       {/* عداد الروشتات والأشخاص */}
       {people && (
         <p className="text-body-muted text-on-surface-variant mt-1 pr-1">
-          {toArabicDigits(totalPrescriptions)} روشتات · {toArabicDigits(people.length)} أشخاص
+          {toArabicDigits(totalPrescriptions)} روشتات ·{" "}
+          {toArabicDigits(people.length)} أشخاص
         </p>
       )}
 
       {/* عنوان القائمة */}
       <div className="mt-5 mb-3 flex items-center justify-between">
-        <h3 className="text-card-title text-primary-container font-bold">الأشخاص</h3>
+        <h3 className="text-card-title text-primary-container font-bold">
+          الأشخاص
+        </h3>
         <span className="text-label-caption text-on-surface-variant">
           اختر شخصاً لعرض ملفه
         </span>
@@ -115,7 +124,7 @@ export default function SectionPage() {
             className="group relative flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(23,59,103,0.05)] active:scale-[0.99] transition-all"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <PersonAvatar alt={person.name} size="sm" />
+              <PersonListAvatar person={person} />
               <div className="flex flex-col min-w-0">
                 <span className="text-card-title text-on-surface font-bold truncate">
                   {person.name}
@@ -146,7 +155,12 @@ export default function SectionPage() {
         )}
 
         <Link href={`/sections/${sectionId}/people/add`}>
-          <Button variant="soft" icon="person_add" fullWidth className="mt-2 h-[52px]">
+          <Button
+            variant="soft"
+            icon="person_add"
+            fullWidth
+            className="mt-2 h-[52px]"
+          >
             + إضافة شخص جديد
           </Button>
         </Link>
@@ -163,11 +177,20 @@ export default function SectionPage() {
   );
 }
 
+function PersonListAvatar({ person }: { person: Person }) {
+  const imageUrl = useImageUrl(person.avatarBlobId);
+
+  return <PersonAvatar src={imageUrl} alt={person.name} size="sm" />;
+}
+
 function PeopleSkeleton() {
   return (
     <div className="flex flex-col gap-[14px]" aria-hidden="true">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="h-[76px] rounded-xl bg-surface-container-lowest animate-pulse" />
+        <div
+          key={i}
+          className="h-[76px] rounded-xl bg-surface-container-lowest animate-pulse"
+        />
       ))}
     </div>
   );

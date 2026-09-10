@@ -140,7 +140,7 @@ export default function AddPrescriptionPage() {
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          capture="environment"
+        //   capture="environment"
           onChange={handleFileChange}
           className="hidden"
         />
