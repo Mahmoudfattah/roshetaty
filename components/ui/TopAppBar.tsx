@@ -40,7 +40,7 @@ export function TopAppBar({
             </button>
           ) : logoSrc ? (
             /* عرض الشعار في حالة عدم وجود زر رجوع */
-            <div className="relative h-10 w-28 flex-shrink-0">
+            <div className="relative h-10 w-20 sm:w-24 flex-shrink-0">
               <Image
                 src={logoSrc}
                 alt="شعار روشتاتي"

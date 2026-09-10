@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { TopAppBar } from "@/components/ui/TopAppBar";
+import { TopBar } from "@/components/ui/TopBar";
 import { Button } from "@/components/ui/Button";
 import Icon  from "@/components/ui/Icon";
 import { PersonAvatar } from "@/components/ui/ListRow";
 import { toArabicDigits, formatArabicDate } from "@/lib/utils";
 import { getSection, getSectionPeopleSummary, type PersonSummary } from "@/lib/repository";
 import type { Section } from "@/lib/types";
-import Link from "next/link";
 
 export default function SectionPage() {
   const { sectionId } = useParams<{ sectionId: string }>();
@@ -41,7 +42,19 @@ export default function SectionPage() {
   if (section === null) {
     return (
       <>
-        <TopAppBar title="القسم غير موجود" onBack={() => router.push("/")} />
+        <TopAppBar
+               logoSrc="/logo1.png"
+               trailing={
+                 <button
+                   aria-label="مركز التنبيهات"
+                   type="button"
+                   className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+                 >
+                   <Icon name="notifications" className="text-[26px]" />
+                 </button>
+               }
+             />
+        <TopBar title="  " onBack={() => router.back()} />
         <p className="text-body-muted text-on-surface-variant text-center py-16">
           يمكن يكون القسم ده اتحذف. ارجع للرئيسية وجرّب تاني.
         </p>
@@ -53,17 +66,49 @@ export default function SectionPage() {
 
   return (
     <>
-      <TopAppBar title={section?.name ?? "جاري التحميل..."} onBack={() => router.push("/")} />
+      <TopAppBar
+               logoSrc="/logo1.png"
+               trailing={
+                 <button
+                   aria-label="مركز التنبيهات"
+                   type="button"
+                   className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+                 >
+                   <Icon name="notifications" className="text-[26px]" />
+                 </button>
+               }
+             />
+
+      <TopBar
+        title={section?.name ?? "جاري التحميل..."}
+        onBack={() => router.push("/")}
+        iconNode={
+          section && (
+            <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary flex-shrink-0">
+              <Icon name={section.icon} className="text-[24px]" />
+            </div>
+          )
+        }
+        trailing={
+          <button
+            aria-label="مشاركة القسم"
+            type="button"
+            className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors"
+          >
+            <Icon name="folder_shared" className="text-[22px]" />
+          </button>
+        }
+      />
 
       {/* عداد الروشتات والأشخاص */}
       {people && (
-        <p className="text-body-muted text-on-surface-variant mt-1 mb-5">
-          {toArabicDigits(totalPrescriptions)} روشتات {toArabicDigits(people.length)} أشخاص
+        <p className="text-body-muted text-on-surface-variant mt-1 pr-1">
+          {toArabicDigits(totalPrescriptions)} روشتات · {toArabicDigits(people.length)} أشخاص
         </p>
       )}
 
       {/* عنوان القائمة */}
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mt-5 mb-3 flex items-center justify-between">
         <h3 className="text-card-title text-primary-container font-bold">الأشخاص</h3>
         <span className="text-label-caption text-on-surface-variant">
           اختر شخصاً لعرض ملفه
@@ -130,7 +175,7 @@ export default function SectionPage() {
 function PeopleSkeleton() {
   return (
     <div className="flex flex-col gap-[14px]" aria-hidden="true">
-      {[0, 1, 2].map((i) => ( 
+      {[0, 1, 2].map((i) => (
         <div key={i} className="h-[76px] rounded-xl bg-surface-container-lowest animate-pulse" />
       ))}
     </div>

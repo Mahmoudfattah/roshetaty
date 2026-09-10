@@ -26,3 +26,21 @@ const arabicDateFormatter = new Intl.DateTimeFormat("ar-EG", {
 export function formatArabicDate(isoDate: string): string {
   return arabicDateFormatter.format(new Date(isoDate));
 }
+
+const relativeTimeFormatter = new Intl.RelativeTimeFormat("ar-EG", { numeric: "auto" });
+
+/** تنسيق نسبي زي "منذ أسبوع" أو "منذ يومين" من تاريخ/وقت ISO */
+export function formatRelativeArabic(isoDateTime: string): string {
+  const diffDays = Math.round(
+    (new Date(isoDateTime).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (Math.abs(diffDays) < 1) return relativeTimeFormatter.format(0, "day");
+  if (Math.abs(diffDays) < 7) return relativeTimeFormatter.format(diffDays, "day");
+
+  const diffWeeks = Math.round(diffDays / 7);
+  if (Math.abs(diffWeeks) < 5) return relativeTimeFormatter.format(diffWeeks, "week");
+
+  const diffMonths = Math.round(diffDays / 30);
+  return relativeTimeFormatter.format(diffMonths, "month");
+}
