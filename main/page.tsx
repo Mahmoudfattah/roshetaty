@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { ListRow, SectionIcon, PersonAvatar } from "@/components/ui/ListRow";
 import Icon from "@/components/ui/Icon";
+import { useImageUrl } from "@/lib/hooks/useImageUrl";
 import { toArabicDigits } from "@/lib/utils";
-import { getSections, getPeopleBySection } from "@/lib/repository";
+import { getPeople, getPeopleBySection, getSections } from "@/lib/repository";
 import { ensureDefaultSections } from "@/lib/seed";
-import type { Section } from "@/lib/types";
+import type { Person, Section } from "@/lib/types";
 
 interface SectionWithCount extends Section {
   peopleCount: number;
@@ -18,20 +19,25 @@ interface SectionWithCount extends Section {
 
 export default function HomePage() {
   const [sections, setSections] = useState<SectionWithCount[] | null>(null);
+  const [people, setPeople] = useState<Person[]>([]);
+  const avatarUrl = useImageUrl(people[0]?.avatarBlobId);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       await ensureDefaultSections();
-      const list = await getSections();
+      const [list, allPeople] = await Promise.all([getSections(), getPeople()]);
       const withCounts = await Promise.all(
         list.map(async (section) => ({
           ...section,
           peopleCount: (await getPeopleBySection(section.id)).length,
         })),
       );
-      if (!cancelled) setSections(withCounts);
+      if (!cancelled) {
+        setSections(withCounts);
+        setPeople(allPeople);
+      }
     }
 
     load();
@@ -62,12 +68,11 @@ export default function HomePage() {
           <span className="text-screen-title text-primary-container leading-tight">
             روشتاتي
           </span>
-          {/* TODO: اسم العيلة ده لازم ييجي من إعدادات الحساب لما نبنيها */}
           <span className="text-body-default text-on-surface-variant mt-1">
-            أهلاً، عائلة أحمد
+            {getFamilyGreeting(people)}
           </span>
         </div>
-        <PersonAvatar alt="عائلة أحمد" />
+        <PersonAvatar src={avatarUrl} alt={people[0]?.name ?? "العيلة"} />
       </div>
 
       {/* عنوان القسم + عداد */}
@@ -125,4 +130,13 @@ function SectionsSkeleton() {
       ))}
     </div>
   );
+}
+
+function getFamilyGreeting(people: Person[]): string {
+  if (people.length === 0) return "أهلاً، أضف أول فرد للعيلة";
+  const names = people
+    .slice(0, 2)
+    .map((person) => person.name)
+    .join(" و ");
+  return `أهلاً، عائلة ${names}${people.length > 2 ? " والعيلة" : ""}`;
 }
