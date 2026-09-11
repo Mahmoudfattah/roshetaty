@@ -3,16 +3,20 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { TopAppBar } from "@/components/ui/TopAppBar";
-import Icon  from "@/components/ui/Icon";
+import Icon from "@/components/ui/Icon";
+import { PersonAvatar } from "@/components/ui/ListRow";
+import { useImageUrl } from "@/lib/hooks/useImageUrl";
 import { toArabicDigits } from "@/lib/utils";
 import { getPeople } from "@/lib/repository";
+import type { Person } from "@/lib/types";
 
 export default function AccountPage() {
-  const [peopleCount, setPeopleCount] = useState<number | null>(null);
+  const [people, setPeople] = useState<Person[] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const avatarUrl = useImageUrl(people?.[0]?.avatarBlobId);
 
   useEffect(() => {
-    getPeople().then((people) => setPeopleCount(people.length));
+    getPeople().then(setPeople);
   }, []);
 
   function showToast(message: string) {
@@ -28,16 +32,20 @@ export default function AccountPage() {
         {/* بطاقة العائلة */}
         <section className="bg-surface-container-lowest rounded-xl p-card-pad shadow-[0_4px_16px_rgba(23,59,103,0.06)] flex items-center gap-card-pad">
           <div className="relative shrink-0">
-            <div className="w-20 h-20 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-sm text-section-title font-bold">
-              ع
-            </div>
+            <PersonAvatar
+              src={avatarUrl}
+              alt={people?.[0]?.name ?? "العيلة"}
+              size="md"
+            />
             <div className="absolute -bottom-1 -left-1 bg-secondary text-on-secondary rounded-full w-7 h-7 flex items-center justify-center shadow-sm">
               <Icon name="verified_user" className="text-[18px]" />
             </div>
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h2 className="text-section-title text-primary-container truncate">عائلة أحمد</h2>
+              <h2 className="text-section-title text-primary-container truncate">
+                {getFamilyName(people ?? [])}
+              </h2>
               <span className="bg-secondary-fixed text-on-secondary-fixed text-label-caption px-2.5 py-0.5 rounded-full shrink-0">
                 الأساسي
               </span>
@@ -65,7 +73,9 @@ export default function AccountPage() {
             />
             <div className="flex items-center gap-2 shrink-0">
               <span className="bg-surface-container-high text-on-surface-variant text-label-caption px-2.5 py-1 rounded-full">
-                {peopleCount === null ? "..." : `${toArabicDigits(peopleCount)} أفراد`}
+                {people === null
+                  ? "..."
+                  : `${toArabicDigits(people.length)} أفراد`}
               </span>
               <Icon name="chevron_left" className="text-outline text-[24px]" />
             </div>
@@ -80,7 +90,10 @@ export default function AccountPage() {
               title="التخصصات الطبية"
               subtitle="إضافة وتعديل وحذف الأقسام"
             />
-            <Icon name="chevron_left" className="text-outline text-[24px] shrink-0" />
+            <Icon
+              name="chevron_left"
+              className="text-outline text-[24px] shrink-0"
+            />
           </Link>
         </MenuSection>
 
@@ -91,21 +104,35 @@ export default function AccountPage() {
             onClick={() => showToast("اللغة الحالية هي العربية")}
             className="w-full min-h-[64px] px-card-pad py-3.5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-right active:bg-surface-container"
           >
-            <MenuItemContent icon="translate" title="لغة التطبيق" subtitle="لغة القوائم والنصوص التوضيحية" />
+            <MenuItemContent
+              icon="translate"
+              title="لغة التطبيق"
+              subtitle="لغة القوائم والنصوص التوضيحية"
+            />
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-label-prominent text-secondary">العربية</span>
+              <span className="text-label-prominent text-secondary">
+                العربية
+              </span>
               <Icon name="chevron_left" className="text-outline text-[24px]" />
             </div>
           </button>
           <Divider />
           <button
             type="button"
-            onClick={() => showToast("الوضع المعتمد حاليًا هو الفاتح والمريح للعين")}
+            onClick={() =>
+              showToast("الوضع المعتمد حاليًا هو الفاتح والمريح للعين")
+            }
             className="w-full min-h-[64px] px-card-pad py-3.5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-right active:bg-surface-container"
           >
-            <MenuItemContent icon="light_mode" title="المظهر" subtitle="نمط الألوان والتباين المريح للقراءة" />
+            <MenuItemContent
+              icon="light_mode"
+              title="المظهر"
+              subtitle="نمط الألوان والتباين المريح للقراءة"
+            />
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-label-prominent text-on-surface-variant">الوضع الفاتح</span>
+              <span className="text-label-prominent text-on-surface-variant">
+                الوضع الفاتح
+              </span>
               <Icon name="chevron_left" className="text-outline text-[24px]" />
             </div>
           </button>
@@ -130,14 +157,19 @@ export default function AccountPage() {
               <Icon name="health_and_safety" className="text-[26px]" />
             </div>
             <div className="flex flex-col min-w-0">
-              <h4 className="text-card-title text-on-primary">رعايتكم أولويتنا</h4>
+              <h4 className="text-card-title text-on-primary">
+                رعايتكم أولويتنا
+              </h4>
               <p className="text-body-default text-surface-container-high mt-1.5 leading-relaxed">
-                روشتاتي يساعدك على حفظ وتوثيق التاريخ الصحي لعائلتك للرجوع إليه عند الحاجة، بعيدًا عن ضياع الأوراق وتلفها مع الوقت.
+                روشتاتي يساعدك على حفظ وتوثيق التاريخ الصحي لعائلتك للرجوع إليه
+                عند الحاجة، بعيدًا عن ضياع الأوراق وتلفها مع الوقت.
               </p>
               <div className="flex items-center gap-3 mt-4">
                 <button
                   type="button"
-                  onClick={() => showToast("نسخة التطبيق: الإصدار ٠٫١ (تجريبي)")}
+                  onClick={() =>
+                    showToast("نسخة التطبيق: الإصدار ٠٫١ (تجريبي)")
+                  }
                   className="min-h-[48px] px-4 rounded-lg bg-surface-container-lowest text-primary-container text-label-prominent hover:bg-surface-container transition-colors flex items-center gap-1.5 shadow-sm active:scale-95"
                 >
                   <Icon name="info" className="text-[20px]" />
@@ -145,7 +177,11 @@ export default function AccountPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => showToast("بياناتك محفوظة محليًا على جهازك فقط ولا تُشارك مع أي طرف")}
+                  onClick={() =>
+                    showToast(
+                      "بياناتك محفوظة محليًا على جهازك فقط ولا تُشارك مع أي طرف",
+                    )
+                  }
                   className="min-h-[48px] px-4 rounded-lg bg-surface-container-lowest/20 text-on-primary text-label-prominent hover:bg-surface-container-lowest/30 transition-colors flex items-center gap-1.5 active:scale-95"
                 >
                   <Icon name="shield" className="text-[20px]" />
@@ -167,6 +203,15 @@ export default function AccountPage() {
       )}
     </>
   );
+}
+
+function getFamilyName(people: Person[]): string {
+  if (people.length === 0) return "عائلتي";
+  const names = people
+    .slice(0, 2)
+    .map((person) => person.name)
+    .join(" و ");
+  return `عائلة ${names}${people.length > 2 ? " والعيلة" : ""}`;
 }
 
 function MenuSection({
@@ -214,7 +259,9 @@ function MenuItemContent({
       </div>
       <div className="flex flex-col min-w-0 text-right">
         <span className="text-card-title text-on-surface">{title}</span>
-        <span className="text-label-caption text-on-surface-variant">{subtitle}</span>
+        <span className="text-label-caption text-on-surface-variant">
+          {subtitle}
+        </span>
       </div>
     </div>
   );
