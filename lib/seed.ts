@@ -1,11 +1,11 @@
 import { getSections, addSection, addPerson } from "./repository";
 
 const SEED_SECTIONS: { name: string; icon: string; people: string[] }[] = [
-  { name: "باطنة عامة", icon: "stethoscope", people: ["أحمد (الوالد)", "فاطمة (الوالدة)", "عمر"] },
-  { name: "عيون ورمد", icon: "visibility", people: ["أحمد (الوالد)", "فاطمة (الوالدة)"] },
-  { name: "أطفال", icon: "child_care", people: ["عمر", "سارة"] },
-  { name: "عظام ومفاصل", icon: "accessibility_new", people: ["أحمد (الوالد)"] },
-  { name: "أسنان", icon: "dentistry", people: ["أحمد (الوالد)", "فاطمة (الوالدة)", "عمر"] },
+  // { name: "باطنة عامة", icon: "stethoscope", people: ["أحمد (الوالد)", "فاطمة (الوالدة)", "عمر"] },
+  // { name: "عيون ورمد", icon: "visibility", people: ["أحمد (الوالد)", "فاطمة (الوالدة)"] },
+  // { name: "أطفال", icon: "child_care", people: ["عمر", "سارة"] },
+  // { name: "عظام ومفاصل", icon: "accessibility_new", people: ["أحمد (الوالد)"] },
+  // { name: "أسنان", icon: "dentistry", people: ["أحمد (الوالد)", "فاطمة (الوالدة)", "عمر"] },
 ];
 
 /**
