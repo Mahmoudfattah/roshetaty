@@ -1,11 +1,10 @@
 import { get, set, createStore } from "idb-keyval";
 
 // لازم تتثبت: npm install idb-keyval
-// Use a fresh local store so records created by the old demo data are not loaded.
-const store = createStore("rowshatati-db-v2", "keyval");
+const store = createStore("rowshatati-db", "keyval");
 
 export const db = {
-  get: <T>(key: string) => get<T>(key, store),
+  get: <T,>(key: string) => get<T>(key, store),
   set: (key: string, value: unknown) => set(key, value, store),
 };
 

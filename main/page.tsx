@@ -9,6 +9,7 @@ import { ListRow, SectionIcon, PersonAvatar } from "@/components/ui/ListRow";
 import Icon from "@/components/ui/Icon";
 import { toArabicDigits } from "@/lib/utils";
 import { getSections, getPeopleBySection } from "@/lib/repository";
+import { ensureDefaultSections } from "@/lib/seed";
 import type { Section } from "@/lib/types";
 
 interface SectionWithCount extends Section {
@@ -22,6 +23,7 @@ export default function HomePage() {
     let cancelled = false;
 
     async function load() {
+      await ensureDefaultSections();
       const list = await getSections();
       const withCounts = await Promise.all(
         list.map(async (section) => ({
