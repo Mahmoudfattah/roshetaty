@@ -6,7 +6,6 @@ import { TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { PersonAvatar, SectionIcon } from "@/components/ui/ListRow";
 import { getPeopleBySection, getSections } from "@/lib/repository";
-import { ensureSeedData } from "@/lib/seed";
 import type { Person, Section } from "@/lib/types";
 import { useRouter } from "next/navigation";
 
@@ -21,7 +20,6 @@ export default function ChoosePersonPage() {
     let cancelled = false;
 
     async function load() {
-      await ensureSeedData();
       const sectionList = await getSections();
       const sectionsWithPeople = await Promise.all(
         sectionList.map(async (section) => ({

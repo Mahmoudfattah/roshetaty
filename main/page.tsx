@@ -8,7 +8,6 @@ import { Chip } from "@/components/ui/Chip";
 import { ListRow, SectionIcon, PersonAvatar } from "@/components/ui/ListRow";
 import Icon from "@/components/ui/Icon";
 import { toArabicDigits } from "@/lib/utils";
-import { ensureSeedData } from "@/lib/seed";
 import { getSections, getPeopleBySection } from "@/lib/repository";
 import type { Section } from "@/lib/types";
 
@@ -23,7 +22,6 @@ export default function HomePage() {
     let cancelled = false;
 
     async function load() {
-      await ensureSeedData();
       const list = await getSections();
       const withCounts = await Promise.all(
         list.map(async (section) => ({
@@ -54,7 +52,6 @@ export default function HomePage() {
             <Icon name="notifications" className="text-[26px]" />
           </Link>
         }
-        
       />
 
       {/* ترحيب */}
