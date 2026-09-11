@@ -25,7 +25,8 @@ const RELATIONS = [
 export default function AddPersonPage() {
   const { sectionId } = useParams<{ sectionId: string }>();
   const router = useRouter();
-  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const avatarCameraInputRef = useRef<HTMLInputElement>(null);
+  const avatarGalleryInputRef = useRef<HTMLInputElement>(null);
 
   const [section, setSection] = useState<Section | null>(null);
   const [name, setName] = useState("");
@@ -34,6 +35,7 @@ export default function AddPersonPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     getSection(sectionId).then((s) => setSection(s ?? null));
@@ -72,11 +74,18 @@ export default function AddPersonPage() {
   //       setSaving(false);
   //     }
   //   }
+  function handleAvatarChange(file: File | undefined) {
+    if (!file) return;
+    setAvatarFile(file);
+    setSaveError(null);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || saving) return;
 
     setSaving(true);
+    setSaveError(null);
     try {
       const finalRelation =
         relation === "أخرى"
@@ -89,9 +98,10 @@ export default function AddPersonPage() {
         avatarFile: avatarFile ?? undefined,
       });
 
-      // التعديل هنا: التوجيه لصفحة القسم بدلاً من صفحة الشخص
       router.push(`/sections/${sectionId}`);
-    } catch {
+    } catch (error) {
+      console.error("Failed to save person", error);
+      setSaveError("حصلت مشكلة أثناء الحفظ. جرّب تاني.");
       setSaving(false);
     }
   }
@@ -128,7 +138,7 @@ export default function AddPersonPage() {
             <button
               type="button"
               aria-label="اختيار صورة شخصية"
-              onClick={() => avatarInputRef.current?.click()}
+              onClick={() => avatarGalleryInputRef.current?.click()}
               className="w-[88px] h-[88px] rounded-full bg-surface-container-lowest shadow-md flex items-center justify-center transition-transform active:scale-95 overflow-hidden relative"
             >
               {avatarPreview ? (
@@ -151,12 +161,38 @@ export default function AddPersonPage() {
             </div>
           </div>
           <input
-            ref={avatarInputRef}
+            ref={avatarCameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="user"
+            className="hidden"
+            onChange={(e) => handleAvatarChange(e.target.files?.[0])}
+          />
+          <input
+            ref={avatarGalleryInputRef}
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => handleAvatarChange(e.target.files?.[0])}
           />
+          <div className="flex items-center gap-2 mt-3">
+            <button
+              type="button"
+              onClick={() => avatarCameraInputRef.current?.click()}
+              className="h-10 px-3 rounded-full bg-primary-fixed text-primary-container text-label-caption font-bold flex items-center gap-1.5"
+            >
+              <Icon name="photo_camera" className="text-[18px]" />
+              الكاميرا
+            </button>
+            <button
+              type="button"
+              onClick={() => avatarGalleryInputRef.current?.click()}
+              className="h-10 px-3 rounded-full bg-surface-container text-on-surface-variant text-label-caption font-bold flex items-center gap-1.5"
+            >
+              <Icon name="photo_library" className="text-[18px]" />
+              المعرض
+            </button>
+          </div>
           <span className="mt-3 text-label-caption text-on-surface-variant font-medium">
             صورة شخصية (اختياري)
           </span>
@@ -250,6 +286,14 @@ export default function AddPersonPage() {
 
           {/* الأزرار */}
           <div className="mt-4 flex flex-col gap-3">
+            {saveError && (
+              <p
+                role="alert"
+                className="text-label-caption text-error text-center"
+              >
+                {saveError}
+              </p>
+            )}
             <Button
               type="submit"
               icon="how_to_reg"

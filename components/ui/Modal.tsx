@@ -10,12 +10,17 @@ interface ModalProps {
   maxWidthClassName?: string;
 }
 
-export function Modal({ open, onClose, children, maxWidthClassName = "max-w-lg" }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  children,
+  maxWidthClassName = "max-w-lg",
+}: ModalProps) {
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4"
+      className="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div

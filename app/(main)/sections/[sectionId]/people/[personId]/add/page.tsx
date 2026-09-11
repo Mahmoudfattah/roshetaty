@@ -22,7 +22,8 @@ export default function AddPrescriptionPage() {
     personId: string;
   }>();
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
 
   const [person, setPerson] = useState<Person | null>(null);
@@ -34,6 +35,7 @@ export default function AddPrescriptionPage() {
   const [clinicName, setClinicName] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     getPerson(personId).then((p) => setPerson(p ?? null));
@@ -53,6 +55,7 @@ export default function AddPrescriptionPage() {
     previewUrlRef.current = URL.createObjectURL(selected);
     setFile(selected);
     setPreviewUrl(previewUrlRef.current);
+    setSaveError(null);
   }
 
   async function handleSave() {
@@ -69,7 +72,9 @@ export default function AddPrescriptionPage() {
         note: note.trim() || undefined,
       });
       router.push(`/sections/${sectionId}/people/${personId}`);
-    } catch {
+    } catch (error) {
+      console.error("Failed to save prescription", error);
+      setSaveError("حصلت مشكلة أثناء حفظ الروشتة. جرّب تاني.");
       setSaving(false);
     }
   }
@@ -83,7 +88,7 @@ export default function AddPrescriptionPage() {
         {!previewUrl ? (
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => galleryInputRef.current?.click()}
             className="mt-2 mb-6 flex flex-col items-center justify-center gap-3 w-full h-56 rounded-2xl border-2 border-dashed border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-colors"
           >
             <div className="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
@@ -128,7 +133,7 @@ export default function AddPrescriptionPage() {
             </div>
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => galleryInputRef.current?.click()}
               className="text-secondary text-label-prominent font-bold text-center py-1 hover:underline"
             >
               تغيير الصورة
@@ -137,13 +142,41 @@ export default function AddPrescriptionPage() {
         )}
 
         <input
-          ref={fileInputRef}
+          ref={cameraInputRef}
           type="file"
           accept="image/*"
-        //   capture="environment"
+          capture="environment"
           onChange={handleFileChange}
           className="hidden"
         />
+        <input
+          ref={galleryInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+
+        {!previewUrl && (
+          <div className="flex justify-center gap-2 mb-6">
+            <button
+              type="button"
+              onClick={() => cameraInputRef.current?.click()}
+              className="h-10 px-4 rounded-full bg-primary-fixed text-primary-container text-label-caption font-bold flex items-center gap-1.5"
+            >
+              <Icon name="photo_camera" className="text-[18px]" />
+              الكاميرا
+            </button>
+            <button
+              type="button"
+              onClick={() => galleryInputRef.current?.click()}
+              className="h-10 px-4 rounded-full bg-surface-container text-on-surface-variant text-label-caption font-bold flex items-center gap-1.5"
+            >
+              <Icon name="photo_library" className="text-[18px]" />
+              المعرض
+            </button>
+          </div>
+        )}
 
         {previewUrl && (
           <div className="flex items-center gap-2 bg-secondary-fixed/30 rounded-lg p-2.5 text-on-secondary-container mb-6">
@@ -225,6 +258,14 @@ export default function AddPrescriptionPage() {
         </div>
 
         <div className="flex flex-col gap-4 mt-auto">
+          {saveError && (
+            <p
+              role="alert"
+              className="text-label-caption text-error text-center"
+            >
+              {saveError}
+            </p>
+          )}
           <Button
             icon="save"
             fullWidth

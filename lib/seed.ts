@@ -1,4 +1,5 @@
 import { getSections, addSection } from "./repository";
+import { db } from "./db";
 
 const DEFAULT_SECTIONS = [
   { name: "باطنة عامة", icon: "stethoscope" },
@@ -8,8 +9,17 @@ const DEFAULT_SECTIONS = [
   { name: "أسنان", icon: "dentistry" },
 ] as const;
 
-/** Creates the default medical sections once, without adding people. */
+const PEOPLE_RESET_KEY = "people-reset-v1";
+
+/** Keeps sections, removes old demo people once, then leaves future data alone. */
 export async function ensureDefaultSections(): Promise<void> {
+  const peopleReset = await db.get<boolean>(PEOPLE_RESET_KEY);
+  if (!peopleReset) {
+    await db.set("people", []);
+    await db.set("prescriptions", []);
+    await db.set(PEOPLE_RESET_KEY, true);
+  }
+
   if ((await getSections()).length > 0) return;
 
   for (const section of DEFAULT_SECTIONS) {
