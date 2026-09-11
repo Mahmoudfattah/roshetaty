@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Icon from "./Icon";
 
 interface TopAppBarProps {
@@ -26,13 +27,13 @@ export function TopAppBar({
   avatarSrc,
   // خلينا زرار التنبيهات هو العنصر الافتراضي في اليمين
   trailing = (
-    <button
+    <Link
+      href="/notifications"
       aria-label="مركز التنبيهات"
-      type="button"
       className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
     >
       <Icon name="notifications" className="text-[26px]" />
-    </button>
+    </Link>
   ),
 }: TopAppBarProps) {
   return (

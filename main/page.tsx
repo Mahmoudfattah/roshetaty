@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { ListRow, SectionIcon, PersonAvatar } from "@/components/ui/ListRow";
-import  Icon  from "@/components/ui/Icon";
+import Icon from "@/components/ui/Icon";
 import { toArabicDigits } from "@/lib/utils";
 import { ensureSeedData } from "@/lib/seed";
 import { getSections, getPeopleBySection } from "@/lib/repository";
@@ -28,7 +29,7 @@ export default function HomePage() {
         list.map(async (section) => ({
           ...section,
           peopleCount: (await getPeopleBySection(section.id)).length,
-        }))
+        })),
       );
       if (!cancelled) setSections(withCounts);
     }
@@ -45,14 +46,15 @@ export default function HomePage() {
         eyebrow="روشتاتي"
         title="Home"
         trailing={
-          <button
+          <Link
+            href="/notifications"
             aria-label="مركز التنبيهات"
-            type="button"
             className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
           >
             <Icon name="notifications" className="text-[26px]" />
-          </button>
+          </Link>
         }
+        
       />
 
       {/* ترحيب */}
@@ -71,7 +73,9 @@ export default function HomePage() {
 
       {/* عنوان القسم + عداد */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-section-title text-primary-container">الأقسام الطبية</h2>
+        <h2 className="text-section-title text-primary-container">
+          الأقسام الطبية
+        </h2>
         {sections && sections.length > 0 && (
           <Chip>{toArabicDigits(sections.length)} تخصصات</Chip>
         )}

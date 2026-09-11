@@ -2,17 +2,25 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { Button } from "@/components/ui/Button";
-import Icon  from "@/components/ui/Icon";
+import Icon from "@/components/ui/Icon";
 import { TextField } from "@/components/ui/TextField";
 import { addPerson, getSection } from "@/lib/repository";
 import type { Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const RELATIONS = ["الوالد", "الوالدة", "الزوج/الزوجة", "الابن", "الابنة", "الجد/الجدة"];
+const RELATIONS = [
+  "الوالد",
+  "الوالدة",
+  "الزوج/الزوجة",
+  "الابن",
+  "الابنة",
+  "الجد/الجدة",
+];
 
 export default function AddPersonPage() {
   const { sectionId } = useParams<{ sectionId: string }>();
@@ -46,59 +54,61 @@ export default function AddPersonPage() {
     if (value !== "أخرى") setCustomRelation("");
   }
 
-//   async function handleSubmit(e: React.FormEvent) {
-//     e.preventDefault();
-//     if (!name.trim() || saving) return;
+  //   async function handleSubmit(e: React.FormEvent) {
+  //     e.preventDefault();
+  //     if (!name.trim() || saving) return;
 
-//     setSaving(true);
-//     try {
-//       const finalRelation = relation === "أخرى" ? customRelation.trim() || undefined : relation ?? undefined;
-//       const person = await addPerson({
-//         sectionId,
-//         name: name.trim(),
-//         relation: finalRelation,
-//         avatarFile: avatarFile ?? undefined,
-//       });
-//       router.push(`/sections/${sectionId}/people/${person.id}`);
-//     } catch {
-//       setSaving(false);
-//     }
-//   }
-async function handleSubmit(e: React.FormEvent) {
+  //     setSaving(true);
+  //     try {
+  //       const finalRelation = relation === "أخرى" ? customRelation.trim() || undefined : relation ?? undefined;
+  //       const person = await addPerson({
+  //         sectionId,
+  //         name: name.trim(),
+  //         relation: finalRelation,
+  //         avatarFile: avatarFile ?? undefined,
+  //       });
+  //       router.push(`/sections/${sectionId}/people/${person.id}`);
+  //     } catch {
+  //       setSaving(false);
+  //     }
+  //   }
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || saving) return;
 
     setSaving(true);
     try {
-      const finalRelation = relation === "أخرى" ? customRelation.trim() || undefined : relation ?? undefined;
+      const finalRelation =
+        relation === "أخرى"
+          ? customRelation.trim() || undefined
+          : (relation ?? undefined);
       await addPerson({
         sectionId,
         name: name.trim(),
         relation: finalRelation,
         avatarFile: avatarFile ?? undefined,
       });
-      
+
       // التعديل هنا: التوجيه لصفحة القسم بدلاً من صفحة الشخص
-      router.push(`/sections/${sectionId}`); 
-      
+      router.push(`/sections/${sectionId}`);
     } catch {
       setSaving(false);
     }
   }
   return (
     <>
-       <TopAppBar
-                        logoSrc="/logo1.png"
-                        trailing={
-                          <button
-                            aria-label="مركز التنبيهات"
-                            type="button"
-                            className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-                          >
-                            <Icon name="notifications" className="text-[26px]" />
-                          </button>
-                        }
-                      />
+      <TopAppBar
+        logoSrc="/logo1.png"
+        trailing={
+          <Link
+            href="/notifications"
+            aria-label="مركز التنبيهات"
+            className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+          >
+            <Icon name="notifications" className="text-[26px]" />
+          </Link>
+        }
+      />
       <TopBar
         title="إضافة شخص جديد"
         onBack={() => router.back()}
@@ -122,9 +132,18 @@ async function handleSubmit(e: React.FormEvent) {
               className="w-[88px] h-[88px] rounded-full bg-surface-container-lowest shadow-md flex items-center justify-center transition-transform active:scale-95 overflow-hidden relative"
             >
               {avatarPreview ? (
-                <Image src={avatarPreview} alt="معاينة الصورة" fill className="object-cover" sizes="88px" />
+                <Image
+                  src={avatarPreview}
+                  alt="معاينة الصورة"
+                  fill
+                  className="object-cover"
+                  sizes="88px"
+                />
               ) : (
-                <Icon name="person" className="text-[44px] text-primary-container" />
+                <Icon
+                  name="person"
+                  className="text-[44px] text-primary-container"
+                />
               )}
             </button>
             <div className="absolute bottom-0 start-0 bg-secondary text-on-secondary w-8 h-8 rounded-full flex items-center justify-center shadow-md pointer-events-none">
@@ -157,11 +176,17 @@ async function handleSubmit(e: React.FormEvent) {
           {/* صلة القرابة */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <label className="text-label-prominent text-on-surface">صلة القرابة</label>
+              <label className="text-label-prominent text-on-surface">
+                صلة القرابة
+              </label>
               <span className="text-label-caption text-outline">اختياري</span>
             </div>
 
-            <div role="radiogroup" aria-label="صلة القرابة" className="grid grid-cols-3 gap-2.5">
+            <div
+              role="radiogroup"
+              aria-label="صلة القرابة"
+              className="grid grid-cols-3 gap-2.5"
+            >
               {RELATIONS.map((r) => (
                 <button
                   key={r}
@@ -173,7 +198,7 @@ async function handleSubmit(e: React.FormEvent) {
                     "h-12 px-3 rounded-xl shadow-sm text-label-prominent flex items-center justify-center text-center leading-snug transition-all active:scale-95",
                     relation === r
                       ? "bg-primary-container text-on-primary"
-                      : "bg-surface-container-lowest text-on-surface"
+                      : "bg-surface-container-lowest text-on-surface",
                   )}
                 >
                   {r}
@@ -190,7 +215,7 @@ async function handleSubmit(e: React.FormEvent) {
                 "w-full h-12 px-4 rounded-xl shadow-sm text-label-prominent flex items-center justify-center gap-2 transition-all active:scale-95",
                 relation === "أخرى"
                   ? "bg-primary-container text-on-primary"
-                  : "bg-surface-container-lowest text-on-surface"
+                  : "bg-surface-container-lowest text-on-surface",
               )}
             >
               <Icon name="tune" className="text-[20px]" />
@@ -213,16 +238,24 @@ async function handleSubmit(e: React.FormEvent) {
               <Icon name="folder_special" className="text-[22px]" />
             </div>
             <div className="flex flex-col gap-1">
-              <h2 className="text-label-prominent text-on-surface">ملف منظم وآمن</h2>
+              <h2 className="text-label-prominent text-on-surface">
+                ملف منظم وآمن
+              </h2>
               <p className="text-label-caption text-on-surface-variant leading-relaxed">
-                هنعمل سجل خاص بيحفظ كل روشتات الشخص ده منظمة بالتاريخ، عشان تسهّل عليك مراجعتها مع الدكتور.
+                هنعمل سجل خاص بيحفظ كل روشتات الشخص ده منظمة بالتاريخ، عشان
+                تسهّل عليك مراجعتها مع الدكتور.
               </p>
             </div>
           </div>
 
           {/* الأزرار */}
           <div className="mt-4 flex flex-col gap-3">
-            <Button type="submit" icon="how_to_reg" fullWidth disabled={!name.trim() || saving}>
+            <Button
+              type="submit"
+              icon="how_to_reg"
+              fullWidth
+              disabled={!name.trim() || saving}
+            >
               {saving ? "جاري الحفظ..." : "حفظ وإضافة"}
             </Button>
             <button

@@ -91,13 +91,13 @@ export default function PersonPage() {
       <TopAppBar
         logoSrc="/logo1.png"
         trailing={
-          <button
+          <Link
+            href="/notifications"
             aria-label="مركز التنبيهات"
-            type="button"
             className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
           >
             <Icon name="notifications" className="text-[26px]" />
-          </button>
+          </Link>
         }
       />
 

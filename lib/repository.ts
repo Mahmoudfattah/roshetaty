@@ -15,9 +15,7 @@ export async function getSections(): Promise<Section[]> {
   return list<Section>(SECTIONS_KEY);
 }
 
-export async function getSection(
-  sectionId: string,
-): Promise<Section | undefined> {
+export async function getSection(sectionId: string): Promise<Section | undefined> {
   return (await getSections()).find((s) => s.id === sectionId);
 }
 
@@ -33,18 +31,27 @@ export async function addSection(name: string, icon: string): Promise<Section> {
   return section;
 }
 
+export async function updateSection(
+  sectionId: string,
+  updates: { name: string; icon: string }
+): Promise<void> {
+  const sections = await getSections();
+  const updated = sections.map((s) =>
+    s.id === sectionId ? { ...s, name: updates.name, icon: updates.icon } : s
+  );
+  await db.set(SECTIONS_KEY, updated);
+}
+
 export async function deleteSection(sectionId: string): Promise<void> {
   const sections = (await getSections()).filter((s) => s.id !== sectionId);
   await db.set(SECTIONS_KEY, sections);
 
   // حذف الأشخاص والروشتات المرتبطة بالقسم كمان (زي ما اتوضح في delete modal)
-  const remainingPeople = (await getPeople()).filter(
-    (p) => p.sectionId !== sectionId,
-  );
+  const remainingPeople = (await getPeople()).filter((p) => p.sectionId !== sectionId);
   await db.set(PEOPLE_KEY, remainingPeople);
 
   const remainingPrescriptions = (await getAllPrescriptions()).filter(
-    (p) => p.sectionId !== sectionId,
+    (p) => p.sectionId !== sectionId
   );
   await db.set(PRESCRIPTIONS_KEY, remainingPrescriptions);
 }
@@ -70,9 +77,7 @@ export async function addPerson(input: {
   avatarFile?: File;
 }): Promise<Person> {
   const people = await getPeople();
-  const avatarBlobId = input.avatarFile
-    ? await saveImage(input.avatarFile)
-    : undefined;
+  const avatarBlobId = input.avatarFile ? await saveImage(input.avatarFile) : undefined;
 
   const person: Person = {
     id: crypto.randomUUID(),
@@ -91,7 +96,7 @@ export async function deletePerson(personId: string): Promise<void> {
   await db.set(PEOPLE_KEY, people);
 
   const remainingPrescriptions = (await getAllPrescriptions()).filter(
-    (p) => p.personId !== personId,
+    (p) => p.personId !== personId
   );
   await db.set(PRESCRIPTIONS_KEY, remainingPrescriptions);
 }
@@ -103,9 +108,7 @@ export async function getAllPrescriptions(): Promise<Prescription[]> {
 }
 
 /** روشتات شخص معين، مرتبة الأحدث أولًا */
-export async function getPrescriptionsByPerson(
-  personId: string,
-): Promise<Prescription[]> {
+export async function getPrescriptionsByPerson(personId: string): Promise<Prescription[]> {
   const all = await getAllPrescriptions();
   return all
     .filter((p) => p.personId === personId)
@@ -113,7 +116,7 @@ export async function getPrescriptionsByPerson(
 }
 
 export async function getPrescription(
-  prescriptionId: string,
+  prescriptionId: string
 ): Promise<Prescription | undefined> {
   return (await getAllPrescriptions()).find((p) => p.id === prescriptionId);
 }
@@ -145,20 +148,40 @@ export async function addPrescription(input: {
   return prescription;
 }
 
-export async function deletePrescription(
+export async function updatePrescription(
   prescriptionId: string,
+  updates: {
+    doctorName?: string;
+    clinicName?: string;
+    visitDate: string;
+    note?: string;
+  }
 ): Promise<void> {
+  const all = await getAllPrescriptions();
+  const updated = all.map((p) =>
+    p.id === prescriptionId
+      ? {
+          ...p,
+          doctorName: updates.doctorName,
+          clinicName: updates.clinicName,
+          visitDate: updates.visitDate,
+          note: updates.note,
+        }
+      : p
+  );
+  await db.set(PRESCRIPTIONS_KEY, updated);
+}
+
+export async function deletePrescription(prescriptionId: string): Promise<void> {
   const all = await getAllPrescriptions();
   await db.set(
     PRESCRIPTIONS_KEY,
-    all.filter((p) => p.id !== prescriptionId),
+    all.filter((p) => p.id !== prescriptionId)
   );
 }
 
 /** عدد روشتات كل شخص — مفيدة لعرض شيبة "٣ روشتات" جنب اسمه من غير ما تجيب كل الداتا */
-export async function countPrescriptionsByPerson(
-  personId: string,
-): Promise<number> {
+export async function countPrescriptionsByPerson(personId: string): Promise<number> {
   const all = await getAllPrescriptions();
   return all.filter((p) => p.personId === personId).length;
 }
@@ -170,9 +193,7 @@ export interface PrescriptionWithContext {
 }
 
 /** كل الروشتات في التطبيق، مع بيانات الشخص والقسم لكل واحدة — مستخدمة في شاشة "كل الروشتات" */
-export async function getPrescriptionsWithContext(): Promise<
-  PrescriptionWithContext[]
-> {
+export async function getPrescriptionsWithContext(): Promise<PrescriptionWithContext[]> {
   const [prescriptions, people, sections] = await Promise.all([
     getAllPrescriptions(),
     getPeople(),
@@ -192,6 +213,55 @@ export async function getPrescriptionsWithContext(): Promise<
   }
   return result;
 }
+export interface SectionSummary {
+  section: Section;
+  peopleCount: number;
+  prescriptionCount: number;
+}
+
+/** كل الأقسام مع عدد الأفراد وعدد الروشتات في كل واحد — مستخدمة في شاشة إدارة الأقسام */
+export async function getSectionsSummary(): Promise<SectionSummary[]> {
+  const [sections, people, prescriptions] = await Promise.all([
+    getSections(),
+    getPeople(),
+    getAllPrescriptions(),
+  ]);
+
+  return sections.map((section) => ({
+    section,
+    peopleCount: people.filter((p) => p.sectionId === section.id).length,
+    prescriptionCount: prescriptions.filter((p) => p.sectionId === section.id).length,
+  }));
+}
+
+export interface DoctorSummary {
+  name: string;
+  prescriptionCount: number;
+  /** اسم آخر قسم شفنا الدكتور مرتبط بيه — مفيش عندنا كيان "دكتور" مستقل، فبنستنتجها من الروشتات */
+  sectionName: string;
+}
+
+/** قائمة الدكاترة مستنتجة من أسماء الدكاترة المكتوبة في الروشتات — مستخدمة في شاشة البحث */
+export async function getDoctors(): Promise<DoctorSummary[]> {
+  const items = await getPrescriptionsWithContext();
+  const map = new Map<string, DoctorSummary>();
+
+  for (const { prescription, section } of items) {
+    if (!prescription.doctorName) continue;
+    const existing = map.get(prescription.doctorName);
+    if (existing) {
+      existing.prescriptionCount += 1;
+    } else {
+      map.set(prescription.doctorName, {
+        name: prescription.doctorName,
+        prescriptionCount: 1,
+        sectionName: section.name,
+      });
+    }
+  }
+
+  return Array.from(map.values());
+}
 
 export interface PersonSummary {
   person: Person;
@@ -201,9 +271,7 @@ export interface PersonSummary {
 }
 
 /** ملخص الأشخاص جوه قسم معين — مستخدمة في شاشة القسم */
-export async function getSectionPeopleSummary(
-  sectionId: string,
-): Promise<PersonSummary[]> {
+export async function getSectionPeopleSummary(sectionId: string): Promise<PersonSummary[]> {
   const [people, prescriptions] = await Promise.all([
     getPeopleBySection(sectionId),
     getAllPrescriptions(),
@@ -211,17 +279,13 @@ export async function getSectionPeopleSummary(
 
   return people.map((person) => {
     const personPrescriptions = prescriptions.filter(
-      (p) => p.personId === person.id && p.sectionId === sectionId,
+      (p) => p.personId === person.id && p.sectionId === sectionId
     );
     const lastVisitDate = personPrescriptions
       .map((p) => p.visitDate)
       .sort()
       .at(-1);
 
-    return {
-      person,
-      prescriptionCount: personPrescriptions.length,
-      lastVisitDate,
-    };
+    return { person, prescriptionCount: personPrescriptions.length, lastVisitDate };
   });
 }

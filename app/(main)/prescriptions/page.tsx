@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { TopAppBar } from "@/components/ui/TopAppBar";
-import Icon  from "@/components/ui/Icon";
+import Icon from "@/components/ui/Icon";
 import { useImageUrl } from "@/lib/hooks/useImageUrl";
 import { toArabicDigits, formatArabicDate } from "@/lib/utils";
 import {
@@ -33,7 +33,7 @@ export default function AllPrescriptionsPage() {
     const sorted = [...items].sort((a, b) =>
       sortOrder === "desc"
         ? b.prescription.visitDate.localeCompare(a.prescription.visitDate)
-        : a.prescription.visitDate.localeCompare(b.prescription.visitDate)
+        : a.prescription.visitDate.localeCompare(b.prescription.visitDate),
     );
 
     const map = new Map<string, PrescriptionWithContext[]>();
@@ -49,25 +49,27 @@ export default function AllPrescriptionsPage() {
 
   return (
     <>
-       <TopAppBar
-                             logoSrc="/logo1.png"
-                             trailing={
-                               <button
-                                 aria-label="مركز التنبيهات"
-                                 type="button"
-                                 className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-                               >
-                                 <Icon name="notifications" className="text-[26px]" />
-                               </button>
-                             }
-                           />
+      <TopAppBar
+        logoSrc="/logo1.png"
+        trailing={
+          <Link
+            href="/notifications"
+            aria-label="مركز التنبيهات"
+            className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+          >
+            <Icon name="notifications" className="text-[26px]" />
+          </Link>
+        }
+      />
 
       <div className="flex flex-col w-full pt-5">
         {/* عنوان الشاشة + زرار الفرز */}
         <div className="flex items-center justify-between w-full mb-6">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-7 bg-primary-container rounded-full" />
-            <h2 className="text-screen-title text-on-surface tracking-tight">كل الروشتات</h2>
+            <h2 className="text-screen-title text-on-surface tracking-tight">
+              كل الروشتات
+            </h2>
           </div>
 
           <div className="relative">
@@ -77,7 +79,9 @@ export default function AllPrescriptionsPage() {
               onClick={() => setSortMenuOpen((v) => !v)}
               className="h-[52px] min-w-[52px] px-4 rounded-xl bg-surface-container hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm text-primary-container text-label-prominent"
             >
-              <span>{sortOrder === "desc" ? "الأحدث أولاً" : "الأقدم أولاً"}</span>
+              <span>
+                {sortOrder === "desc" ? "الأحدث أولاً" : "الأقدم أولاً"}
+              </span>
               <Icon
                 name="expand_more"
                 className={`text-[22px] transition-transform duration-200 ${
@@ -102,9 +106,16 @@ export default function AllPrescriptionsPage() {
                         : "text-on-surface-variant hover:bg-surface-container"
                     }`}
                   >
-                    <span>{order === "desc" ? "الأحدث أولاً (الافتراضي)" : "الأقدم أولاً"}</span>
+                    <span>
+                      {order === "desc"
+                        ? "الأحدث أولاً (الافتراضي)"
+                        : "الأقدم أولاً"}
+                    </span>
                     {sortOrder === order && (
-                      <Icon name="check" className="text-[20px] text-secondary" />
+                      <Icon
+                        name="check"
+                        className="text-[20px] text-secondary"
+                      />
                     )}
                   </button>
                 ))}
@@ -148,7 +159,8 @@ export default function AllPrescriptionsPage() {
 
           {items?.length === 0 && (
             <p className="text-body-muted text-on-surface-variant text-center py-16">
-              لسه مفيش روشتات محفوظة في أي قسم. ابدأ بإضافة أول روشتة من ملف أي شخص.
+              لسه مفيش روشتات محفوظة في أي قسم. ابدأ بإضافة أول روشتة من ملف أي
+              شخص.
             </p>
           )}
         </div>
@@ -184,7 +196,10 @@ function PrescriptionRow({ item }: { item: PrescriptionWithContext }) {
             </span>
           </div>
           <div className="flex items-center gap-1.5 text-on-surface-variant min-w-0">
-            <Icon name={section.icon} className="text-[18px] text-secondary flex-shrink-0" />
+            <Icon
+              name={section.icon}
+              className="text-[18px] text-secondary flex-shrink-0"
+            />
             <p className="text-body-default truncate">
               {prescription.doctorName ? `د. ${prescription.doctorName} ` : ""}
               <span className="text-on-surface-variant">({section.name})</span>
@@ -203,7 +218,10 @@ function TimelineSkeleton() {
   return (
     <div className="flex flex-col gap-3.5" aria-hidden="true">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="h-[76px] rounded-[18px] bg-surface-container-lowest animate-pulse" />
+        <div
+          key={i}
+          className="h-[76px] rounded-[18px] bg-surface-container-lowest animate-pulse"
+        />
       ))}
     </div>
   );

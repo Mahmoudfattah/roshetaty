@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
+import Icon from "@/components/ui/Icon";
 import { ListRow, SectionIcon, PersonAvatar } from "@/components/ui/ListRow";
-import  Icon  from "@/components/ui/Icon";
 import { toArabicDigits } from "@/lib/utils";
 import { ensureSeedData } from "@/lib/seed";
 import { getSections, getPeopleBySection } from "@/lib/repository";
@@ -28,7 +29,7 @@ export default function HomePage() {
         list.map(async (section) => ({
           ...section,
           peopleCount: (await getPeopleBySection(section.id)).length,
-        }))
+        })),
       );
       if (!cancelled) setSections(withCounts);
     }
@@ -41,18 +42,7 @@ export default function HomePage() {
 
   return (
     <>
-          <TopAppBar
-        logoSrc="/logo1.png"
-        trailing={
-          <button
-            aria-label="مركز التنبيهات"
-            type="button"
-            className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-          >
-            <Icon name="notifications" className="text-[26px]" />
-          </button>
-        }
-      />
+      <TopAppBar />
 
       {/* ترحيب */}
       <div className="flex items-center justify-between py-2 mb-4">
@@ -62,18 +52,29 @@ export default function HomePage() {
           </span>
           {/* TODO: اسم العيلة ده لازم ييجي من إعدادات الحساب لما نبنيها */}
           <span className="text-body-default text-on-surface-variant mt-1">
-            أهلاً، عائلة محمود
+            أهلاً، عائلة أحمد
           </span>
         </div>
-        <PersonAvatar alt="عائلة محمود" />
+        <PersonAvatar alt="عائلة أحمد" />
       </div>
 
       {/* عنوان القسم + عداد */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-section-title text-primary-container">الأقسام الطبية</h2>
-        {sections && sections.length > 0 && (
-          <Chip>{toArabicDigits(sections.length)} تخصصات</Chip>
-        )}
+        <h2 className="text-section-title text-primary-container">
+          الأقسام الطبية
+        </h2>
+        <div className="flex items-center gap-2">
+          {sections && sections.length > 0 && (
+            <Chip>{toArabicDigits(sections.length)} تخصصات</Chip>
+          )}
+          <Link
+            href="/manage-sections"
+            aria-label="إدارة الأقسام الطبية"
+            className="w-9 h-9 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors"
+          >
+            <Icon name="tune" className="text-[18px]" />
+          </Link>
+        </div>
       </div>
 
       {/* قائمة الأقسام */}
@@ -99,12 +100,14 @@ export default function HomePage() {
 
       {/* زرار الإضافة الثابت */}
       <div className="sticky bottom-4 z-30 mt-8 flex justify-center w-full px-2 pointer-events-none">
-        <Button
-          icon="add_circle"
-          className="pointer-events-auto shadow-[0_10px_24px_rgba(23,59,103,0.22)]"
-        >
-          إضافة روشتة
-        </Button>
+        <Link href="/add-prescription" className="pointer-events-auto">
+          <Button
+            icon="add_circle"
+            className="shadow-[0_10px_24px_rgba(23,59,103,0.22)]"
+          >
+            إضافة روشتة
+          </Button>
+        </Link>
       </div>
     </>
   );
@@ -116,7 +119,7 @@ function SectionsSkeleton() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="h-[68px] rounded-2xl bg-surface-container-lowest animate-pulse shadow-sm"
+          className="h-17 rounded-2xl bg-surface-container-lowest animate-pulse shadow-sm"
         />
       ))}
     </div>
