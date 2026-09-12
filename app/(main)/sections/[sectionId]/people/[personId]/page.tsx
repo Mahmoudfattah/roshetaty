@@ -24,6 +24,8 @@ import {
 } from "@/lib/repository";
 import type { Person, Section, Prescription } from "@/lib/types";
 import { TopBar } from "@/components/ui/TopBar";
+import { Modal } from "@/components/ui/Modal";
+import { deletePerson } from "@/lib/repository";
 
 export default function PersonPage() {
   const { sectionId, personId } = useParams<{
@@ -37,6 +39,8 @@ export default function PersonPage() {
   const [prescriptions, setPrescriptions] = useState<Prescription[] | null>(
     null,
   );
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const avatarUrl = useImageUrl(person?.avatarBlobId);
 
   useEffect(() => {
@@ -86,6 +90,13 @@ export default function PersonPage() {
 
   const groupedByYear = groupPrescriptionsByYear(prescriptions ?? []);
 
+  async function handleConfirmDelete() {
+    if (!person || deleting) return;
+    setDeleting(true);
+    await deletePerson(person.id);
+    router.replace(`/sections/${sectionId}`);
+  }
+
   return (
     <>
       <TopAppBar
@@ -101,7 +112,29 @@ export default function PersonPage() {
         }
       />
 
-      <TopBar title="  " onBack={() => router.back()} />
+      <TopBar
+        title="  "
+        onBack={() => router.back()}
+        trailing={
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/sections/${sectionId}/people/${personId}/edit`}
+              aria-label="تعديل بيانات الشخص"
+              className="w-12 h-12 rounded-full flex items-center justify-center text-primary-container hover:bg-surface-container transition-colors"
+            >
+              <Icon name="edit" className="text-[24px]" />
+            </Link>
+            <button
+              type="button"
+              aria-label="حذف الشخص"
+              onClick={() => setDeleteModalOpen(true)}
+              className="w-12 h-12 rounded-full flex items-center justify-center text-error hover:bg-error-container/50 transition-colors"
+            >
+              <Icon name="delete" className="text-[24px]" />
+            </button>
+          </div>
+        }
+      />
       {/*     
       <TopAppBar
         title={person?.name ?? "جاري التحميل..."}
@@ -201,6 +234,40 @@ export default function PersonPage() {
           )}
         </div>
       </div>
+
+      <Modal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        maxWidthClassName="max-w-sm"
+      >
+        <div className="flex flex-col gap-4 text-center">
+          <div className="w-16 h-16 rounded-full bg-error-container text-error mx-auto flex items-center justify-center">
+            <Icon name="warning" className="text-[36px]" />
+          </div>
+          <h3 className="text-section-title text-on-surface">حذف ملف الشخص؟</h3>
+          <p className="text-body-muted text-on-surface-variant">
+            سيتم حذف &quot;{person?.name}&quot; وكل الروشتات المحفوظة له
+            نهائيًا.
+          </p>
+          <div className="flex flex-col gap-2 pt-2">
+            <Button
+              variant="destructive"
+              fullWidth
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+            >
+              {deleting ? "جاري الحذف..." : "نعم، حذف الملف"}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setDeleteModalOpen(false)}
+              className="w-full h-14 bg-surface-container text-on-surface text-label-prominent rounded-xl active:scale-[0.98] transition-transform"
+            >
+              إلغاء
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }

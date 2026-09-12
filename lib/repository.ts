@@ -15,7 +15,9 @@ export async function getSections(): Promise<Section[]> {
   return list<Section>(SECTIONS_KEY);
 }
 
-export async function getSection(sectionId: string): Promise<Section | undefined> {
+export async function getSection(
+  sectionId: string,
+): Promise<Section | undefined> {
   return (await getSections()).find((s) => s.id === sectionId);
 }
 
@@ -33,11 +35,11 @@ export async function addSection(name: string, icon: string): Promise<Section> {
 
 export async function updateSection(
   sectionId: string,
-  updates: { name: string; icon: string }
+  updates: { name: string; icon: string },
 ): Promise<void> {
   const sections = await getSections();
   const updated = sections.map((s) =>
-    s.id === sectionId ? { ...s, name: updates.name, icon: updates.icon } : s
+    s.id === sectionId ? { ...s, name: updates.name, icon: updates.icon } : s,
   );
   await db.set(SECTIONS_KEY, updated);
 }
@@ -47,11 +49,13 @@ export async function deleteSection(sectionId: string): Promise<void> {
   await db.set(SECTIONS_KEY, sections);
 
   // حذف الأشخاص والروشتات المرتبطة بالقسم كمان (زي ما اتوضح في delete modal)
-  const remainingPeople = (await getPeople()).filter((p) => p.sectionId !== sectionId);
+  const remainingPeople = (await getPeople()).filter(
+    (p) => p.sectionId !== sectionId,
+  );
   await db.set(PEOPLE_KEY, remainingPeople);
 
   const remainingPrescriptions = (await getAllPrescriptions()).filter(
-    (p) => p.sectionId !== sectionId
+    (p) => p.sectionId !== sectionId,
   );
   await db.set(PRESCRIPTIONS_KEY, remainingPrescriptions);
 }
@@ -77,7 +81,9 @@ export async function addPerson(input: {
   avatarFile?: File;
 }): Promise<Person> {
   const people = await getPeople();
-  const avatarBlobId = input.avatarFile ? await saveImage(input.avatarFile) : undefined;
+  const avatarBlobId = input.avatarFile
+    ? await saveImage(input.avatarFile)
+    : undefined;
 
   const person: Person = {
     id: crypto.randomUUID(),
@@ -91,12 +97,36 @@ export async function addPerson(input: {
   return person;
 }
 
+export async function updatePerson(
+  personId: string,
+  updates: { name: string; relation?: string; avatarFile?: File },
+): Promise<void> {
+  const people = await getPeople();
+  const existing = people.find((person) => person.id === personId);
+  if (!existing) throw new Error("Person not found");
+
+  const avatarBlobId = updates.avatarFile
+    ? await saveImage(updates.avatarFile)
+    : existing.avatarBlobId;
+  const updated = people.map((person) =>
+    person.id === personId
+      ? {
+          ...person,
+          name: updates.name,
+          relation: updates.relation,
+          avatarBlobId,
+        }
+      : person,
+  );
+  await db.set(PEOPLE_KEY, updated);
+}
+
 export async function deletePerson(personId: string): Promise<void> {
   const people = (await getPeople()).filter((p) => p.id !== personId);
   await db.set(PEOPLE_KEY, people);
 
   const remainingPrescriptions = (await getAllPrescriptions()).filter(
-    (p) => p.personId !== personId
+    (p) => p.personId !== personId,
   );
   await db.set(PRESCRIPTIONS_KEY, remainingPrescriptions);
 }
@@ -108,7 +138,9 @@ export async function getAllPrescriptions(): Promise<Prescription[]> {
 }
 
 /** روشتات شخص معين، مرتبة الأحدث أولًا */
-export async function getPrescriptionsByPerson(personId: string): Promise<Prescription[]> {
+export async function getPrescriptionsByPerson(
+  personId: string,
+): Promise<Prescription[]> {
   const all = await getAllPrescriptions();
   return all
     .filter((p) => p.personId === personId)
@@ -116,7 +148,7 @@ export async function getPrescriptionsByPerson(personId: string): Promise<Prescr
 }
 
 export async function getPrescription(
-  prescriptionId: string
+  prescriptionId: string,
 ): Promise<Prescription | undefined> {
   return (await getAllPrescriptions()).find((p) => p.id === prescriptionId);
 }
@@ -155,7 +187,7 @@ export async function updatePrescription(
     clinicName?: string;
     visitDate: string;
     note?: string;
-  }
+  },
 ): Promise<void> {
   const all = await getAllPrescriptions();
   const updated = all.map((p) =>
@@ -167,21 +199,25 @@ export async function updatePrescription(
           visitDate: updates.visitDate,
           note: updates.note,
         }
-      : p
+      : p,
   );
   await db.set(PRESCRIPTIONS_KEY, updated);
 }
 
-export async function deletePrescription(prescriptionId: string): Promise<void> {
+export async function deletePrescription(
+  prescriptionId: string,
+): Promise<void> {
   const all = await getAllPrescriptions();
   await db.set(
     PRESCRIPTIONS_KEY,
-    all.filter((p) => p.id !== prescriptionId)
+    all.filter((p) => p.id !== prescriptionId),
   );
 }
 
 /** عدد روشتات كل شخص — مفيدة لعرض شيبة "٣ روشتات" جنب اسمه من غير ما تجيب كل الداتا */
-export async function countPrescriptionsByPerson(personId: string): Promise<number> {
+export async function countPrescriptionsByPerson(
+  personId: string,
+): Promise<number> {
   const all = await getAllPrescriptions();
   return all.filter((p) => p.personId === personId).length;
 }
@@ -193,7 +229,9 @@ export interface PrescriptionWithContext {
 }
 
 /** كل الروشتات في التطبيق، مع بيانات الشخص والقسم لكل واحدة — مستخدمة في شاشة "كل الروشتات" */
-export async function getPrescriptionsWithContext(): Promise<PrescriptionWithContext[]> {
+export async function getPrescriptionsWithContext(): Promise<
+  PrescriptionWithContext[]
+> {
   const [prescriptions, people, sections] = await Promise.all([
     getAllPrescriptions(),
     getPeople(),
@@ -230,7 +268,8 @@ export async function getSectionsSummary(): Promise<SectionSummary[]> {
   return sections.map((section) => ({
     section,
     peopleCount: people.filter((p) => p.sectionId === section.id).length,
-    prescriptionCount: prescriptions.filter((p) => p.sectionId === section.id).length,
+    prescriptionCount: prescriptions.filter((p) => p.sectionId === section.id)
+      .length,
   }));
 }
 
@@ -271,7 +310,9 @@ export interface PersonSummary {
 }
 
 /** ملخص الأشخاص جوه قسم معين — مستخدمة في شاشة القسم */
-export async function getSectionPeopleSummary(sectionId: string): Promise<PersonSummary[]> {
+export async function getSectionPeopleSummary(
+  sectionId: string,
+): Promise<PersonSummary[]> {
   const [people, prescriptions] = await Promise.all([
     getPeopleBySection(sectionId),
     getAllPrescriptions(),
@@ -279,13 +320,17 @@ export async function getSectionPeopleSummary(sectionId: string): Promise<Person
 
   return people.map((person) => {
     const personPrescriptions = prescriptions.filter(
-      (p) => p.personId === person.id && p.sectionId === sectionId
+      (p) => p.personId === person.id && p.sectionId === sectionId,
     );
     const lastVisitDate = personPrescriptions
       .map((p) => p.visitDate)
       .sort()
       .at(-1);
 
-    return { person, prescriptionCount: personPrescriptions.length, lastVisitDate };
+    return {
+      person,
+      prescriptionCount: personPrescriptions.length,
+      lastVisitDate,
+    };
   });
 }

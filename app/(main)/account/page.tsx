@@ -43,7 +43,7 @@ export default function AccountPage() {
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h2 className="text-section-title text-primary-container truncate">
+              <h2 className="text-section-title text-primary-container  truncate">
                 {getFamilyName(people ?? [])}
               </h2>
               <span className="bg-secondary-fixed text-on-secondary-fixed text-label-caption px-2.5 py-0.5 rounded-full shrink-0">
@@ -53,9 +53,9 @@ export default function AccountPage() {
             <p className="text-body-muted text-on-surface-variant mt-1">
               أرشيف الروشتات العائلية الآمن
             </p>
-            <div className="flex items-center gap-1.5 mt-2 text-secondary text-label-caption">
+            <div className="flex items-center gap-1 mt-2 text-secondary text-label-caption">
               <Icon name="cloud_done" className="text-[18px]" />
-              <span>جميع الأوراق الطبية محفوظة على جهازك</span>
+              <span className="text-xs sm:text-xl">جميع الأوراق الطبية محفوظة على جهازك</span>
             </div>
           </div>
         </section>
@@ -145,7 +145,7 @@ export default function AccountPage() {
             />
             <div className="flex items-center gap-1.5 bg-secondary-fixed text-on-secondary-fixed px-3 py-1.5 rounded-full shrink-0 shadow-sm">
               <Icon name="lock" className="text-[18px]" />
-              <span className="text-label-caption font-bold">محلي وآمن</span>
+              <span className="text-label-caption font-bold text-xs sm:text-xl">محلي وآمن</span>
             </div>
           </div>
         </MenuSection>
@@ -170,10 +170,10 @@ export default function AccountPage() {
                   onClick={() =>
                     showToast("نسخة التطبيق: الإصدار ٠٫١ (تجريبي)")
                   }
-                  className="min-h-[48px] px-4 rounded-lg bg-surface-container-lowest text-primary-container text-label-prominent hover:bg-surface-container transition-colors flex items-center gap-1.5 shadow-sm active:scale-95"
+                  className="min-h-[48px] px-4 rounded-lg bg-surface-container-lowest text-primary-container text-label-prominent hover:bg-surface-container transition-colors flex items-center gap-1 shadow-sm active:scale-95"
                 >
                   <Icon name="info" className="text-[20px]" />
-                  <span>عن التطبيق</span>
+                  <span className="text-sm sm:text-xl">عن التطبيق</span>
                 </button>
                 <button
                   type="button"
@@ -255,11 +255,11 @@ function MenuItemContent({
   return (
     <div className="flex items-center gap-card-pad min-w-0">
       <div className="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed shrink-0">
-        <Icon name={icon} className="text-[24px]" />
+        <Icon name={icon} className="sm:text-[24px] " />
       </div>
       <div className="flex flex-col min-w-0 text-right">
-        <span className="text-card-title text-on-surface">{title}</span>
-        <span className="text-label-caption text-on-surface-variant">
+        <span className="text-card-title  text-on-surface">{title}</span>
+        <span className="text-label-caption text-on-surface-variant text-xs sm:text-xl">
           {subtitle}
         </span>
       </div>
