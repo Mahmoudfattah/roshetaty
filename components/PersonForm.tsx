@@ -41,6 +41,7 @@ export function PersonForm({
   const avatarCameraInputRef = useRef<HTMLInputElement>(null);
   const avatarGalleryInputRef = useRef<HTMLInputElement>(null);
   const avatarRequestRef = useRef(0);
+  const avatarPreviewUrlRef = useRef<string | null>(null);
   const existingAvatarUrl = useImageUrl(initialPerson?.avatarBlobId);
   const [name, setName] = useState(initialPerson?.name ?? "");
   const [relation, setRelation] = useState<string | null>(
@@ -64,9 +65,11 @@ export function PersonForm({
 
   useEffect(() => {
     return () => {
-      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+      if (avatarPreviewUrlRef.current) {
+        URL.revokeObjectURL(avatarPreviewUrlRef.current);
+      }
     };
-  }, [avatarPreview]);
+  }, []);
 
   function toggleRelation(value: string) {
     setRelation((current) => (current === value ? null : value));
@@ -83,8 +86,13 @@ export function PersonForm({
         quality: 0.85,
       });
       if (requestId !== avatarRequestRef.current) return;
+      if (avatarPreviewUrlRef.current) {
+        URL.revokeObjectURL(avatarPreviewUrlRef.current);
+      }
+      const previewUrl = URL.createObjectURL(compressed);
+      avatarPreviewUrlRef.current = previewUrl;
       setAvatarFile(compressed);
-      setAvatarPreview(URL.createObjectURL(compressed));
+      setAvatarPreview(previewUrl);
       setSaveError(null);
     } catch {
       if (requestId !== avatarRequestRef.current) return;
