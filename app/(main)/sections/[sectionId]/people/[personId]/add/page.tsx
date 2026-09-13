@@ -10,6 +10,7 @@ import Icon from "@/components/ui/Icon";
 import { TextField } from "@/components/ui/TextField";
 import { TextAreaField } from "@/components/ui/TextAreaField";
 import { getPerson, addPrescription } from "@/lib/repository";
+import { compressImage } from "@/lib/image";
 import type { Person } from "@/lib/types";
 
 function todayIso(): string {
@@ -35,7 +36,9 @@ export default function AddPrescriptionPage() {
   const [clinicName, setClinicName] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const [processingPhoto, setProcessingPhoto] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
 
   useEffect(() => {
     getPerson(personId).then((p) => setPerson(p ?? null));
@@ -47,15 +50,26 @@ export default function AddPrescriptionPage() {
     };
   }, []);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0];
     if (!selected) return;
 
-    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-    previewUrlRef.current = URL.createObjectURL(selected);
-    setFile(selected);
-    setPreviewUrl(previewUrlRef.current);
-    setSaveError(null);
+    setProcessingPhoto(true);
+    try {
+      const compressed = await compressImage(selected, {
+        maxDimension: 1800,
+        quality: 0.85,
+      });
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = URL.createObjectURL(compressed);
+      setFile(compressed);
+      setPreviewUrl(previewUrlRef.current);
+      setSaveError(null);
+    } catch {
+      setSaveError("حصلت مشكلة أثناء تجهيز الصورة. جرّب تاني.");
+    } finally {
+      setProcessingPhoto(false);
+    }
   }
 
   async function handleSave() {
@@ -75,6 +89,10 @@ export default function AddPrescriptionPage() {
     } catch (error) {
       console.error("Failed to save prescription", error);
       setSaveError("حصلت مشكلة أثناء حفظ الروشتة. جرّب تاني.");
+      setErrorToast(
+        "حصلت مشكلة أثناء حفظ الروشتة. تأكد إن مساحة الجهاز مش ممتلئة وجرب تاني.",
+      );
+      window.setTimeout(() => setErrorToast(null), 3500);
       setSaving(false);
     }
   }
@@ -89,14 +107,20 @@ export default function AddPrescriptionPage() {
           <button
             type="button"
             onClick={() => galleryInputRef.current?.click()}
-            className="mt-2 mb-6 flex flex-col items-center justify-center gap-3 w-full h-56 rounded-2xl border-2 border-dashed border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-colors"
+            disabled={processingPhoto}
+            className="mt-2 mb-6 flex flex-col items-center justify-center gap-3 w-full h-56 rounded-2xl border-2 border-dashed border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-colors disabled:opacity-70"
           >
             <div className="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
-              <Icon name="photo_camera" className="text-[32px]" />
+              <Icon
+                name={processingPhoto ? "hourglass_top" : "photo_camera"}
+                className="text-[32px]"
+              />
             </div>
             <div className="flex flex-col items-center gap-1">
               <span className="text-card-title text-on-surface font-bold">
-                التقط صورة أو اخترها من المعرض
+                {processingPhoto
+                  ? "جاري تجهيز الصورة..."
+                  : "التقط صورة أو اخترها من المعرض"}
               </span>
               <span className="text-label-caption text-on-surface-variant">
                 هنحفظها في أرشيف {person?.name ?? "الشخص"} تلقائيًا
@@ -134,7 +158,8 @@ export default function AddPrescriptionPage() {
             <button
               type="button"
               onClick={() => galleryInputRef.current?.click()}
-              className="text-secondary text-label-prominent font-bold text-center py-1 hover:underline"
+              disabled={processingPhoto}
+              className="text-secondary text-label-prominent font-bold text-center py-1 hover:underline disabled:opacity-50"
             >
               تغيير الصورة
             </button>
@@ -162,7 +187,8 @@ export default function AddPrescriptionPage() {
             <button
               type="button"
               onClick={() => cameraInputRef.current?.click()}
-              className="h-10 px-4 rounded-full bg-primary-fixed text-primary-container text-label-caption font-bold flex items-center gap-1.5"
+              disabled={processingPhoto}
+              className="h-10 px-4 rounded-full bg-primary-fixed text-primary-container text-label-caption font-bold flex items-center gap-1.5 disabled:opacity-50"
             >
               <Icon name="photo_camera" className="text-[18px]" />
               الكاميرا
@@ -170,7 +196,8 @@ export default function AddPrescriptionPage() {
             <button
               type="button"
               onClick={() => galleryInputRef.current?.click()}
-              className="h-10 px-4 rounded-full bg-surface-container text-on-surface-variant text-label-caption font-bold flex items-center gap-1.5"
+              disabled={processingPhoto}
+              className="h-10 px-4 rounded-full bg-surface-container text-on-surface-variant text-label-caption font-bold flex items-center gap-1.5 disabled:opacity-50"
             >
               <Icon name="photo_library" className="text-[18px]" />
               المعرض
@@ -283,6 +310,14 @@ export default function AddPrescriptionPage() {
           </button>
         </div>
       </div>
+
+      {errorToast && (
+        <div className="fixed bottom-28 inset-x-0 flex justify-center z-40 px-screen-margin pointer-events-none">
+          <div className="bg-error text-on-error px-5 py-3 rounded-xl shadow-lg text-label-prominent text-center max-w-sm">
+            {errorToast}
+          </div>
+        </div>
+      )}
     </>
   );
 }

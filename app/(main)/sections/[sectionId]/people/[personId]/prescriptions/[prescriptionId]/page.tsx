@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { Button } from "@/components/ui/Button";
-import Icon  from "@/components/ui/Icon";
+import Icon from "@/components/ui/Icon";
 import { Chip } from "@/components/ui/Chip";
 import { Modal } from "@/components/ui/Modal";
 import { TextField } from "@/components/ui/TextField";
@@ -29,7 +29,9 @@ export default function PrescriptionDetailsPage() {
   }>();
   const router = useRouter();
 
-  const [prescription, setPrescription] = useState<Prescription | null | undefined>(undefined);
+  const [prescription, setPrescription] = useState<
+    Prescription | null | undefined
+  >(undefined);
   const [person, setPerson] = useState<Person | null>(null);
   const [section, setSection] = useState<Section | null>(null);
 
@@ -54,11 +56,12 @@ export default function PrescriptionDetailsPage() {
     let cancelled = false;
 
     async function load() {
-      const [fetchedPrescription, fetchedPerson, fetchedSection] = await Promise.all([
-        getPrescription(prescriptionId),
-        getPerson(personId),
-        getSection(sectionId),
-      ]);
+      const [fetchedPrescription, fetchedPerson, fetchedSection] =
+        await Promise.all([
+          getPrescription(prescriptionId),
+          getPerson(personId),
+          getSection(sectionId),
+        ]);
       if (cancelled) return;
       setPrescription(fetchedPrescription ?? null);
       setPerson(fetchedPerson ?? null);
@@ -83,8 +86,13 @@ export default function PrescriptionDetailsPage() {
   async function handleConfirmDelete() {
     if (deleting) return;
     setDeleting(true);
-    await deletePrescription(prescriptionId);
-    router.push(`/sections/${sectionId}/people/${personId}`);
+    try {
+      await deletePrescription(prescriptionId);
+      router.push(`/sections/${sectionId}/people/${personId}`);
+    } catch {
+      setDeleting(false);
+      showToast("حصلت مشكلة أثناء الحذف، جرب تاني");
+    }
   }
 
   function openEditModal() {
@@ -109,6 +117,8 @@ export default function PrescriptionDetailsPage() {
       const refreshed = await getPrescription(prescriptionId);
       setPrescription(refreshed ?? null);
       setEditModalOpen(false);
+    } catch {
+      showToast("حصلت مشكلة أثناء حفظ التعديلات، جرب تاني");
     } finally {
       setSavingEdit(false);
     }
@@ -134,7 +144,9 @@ export default function PrescriptionDetailsPage() {
       } else if (navigator.share) {
         // بعض المتصفحات (خصوصًا على الديسكتوب) بتدعم المشاركة النصية بس من غير ملفات
         await navigator.share({ title: shareData.title, text: shareData.text });
-        showToast("المتصفح ده مش بيدعم مشاركة الصور، اتشاركت التفاصيل النصية بس");
+        showToast(
+          "المتصفح ده مش بيدعم مشاركة الصور، اتشاركت التفاصيل النصية بس",
+        );
       } else {
         showToast("المشاركة مش مدعومة على المتصفح ده");
       }
@@ -146,7 +158,9 @@ export default function PrescriptionDetailsPage() {
   }
 
   // الهيدر ثابت وظاهر في كل الحالات (تحميل / خطأ / بيانات) عشان زرار الرجوع يفضل شغال
-  const headerTitle = prescription ? formatArabicDate(prescription.visitDate) : "تفاصيل الروشتة";
+  const headerTitle = prescription
+    ? formatArabicDate(prescription.visitDate)
+    : "تفاصيل الروشتة";
 
   if (prescription === null || (prescription && (!person || !section))) {
     return (
@@ -174,7 +188,11 @@ export default function PrescriptionDetailsPage() {
             <div className="relative w-full h-[350px] bg-surface-container rounded-3xl overflow-hidden shadow-sm flex items-center justify-center">
               <div className="absolute top-4 right-4 z-10">
                 <Chip className="bg-surface-container-lowest/80 backdrop-blur-md text-on-surface shadow-sm flex items-center gap-1">
-                  <Icon name="verified" className="text-[18px] text-primary" filled />
+                  <Icon
+                    name="verified"
+                    className="text-[18px] text-primary"
+                    filled
+                  />
                   وثيقة أصلية
                 </Chip>
               </div>
@@ -190,12 +208,20 @@ export default function PrescriptionDetailsPage() {
                   onClick={() => setIsFullscreen(true)}
                 />
               ) : (
-                <Icon name="image_not_supported" className="text-[48px] text-outline-variant" />
+                <Icon
+                  name="image_not_supported"
+                  className="text-[48px] text-outline-variant"
+                />
               )}
             </div>
 
             <div className="flex gap-3">
-              <Button variant="soft" className="flex-1 rounded-xl" onClick={handleRotate} icon="rotate_right">
+              <Button
+                variant="soft"
+                className="flex-1 rounded-xl"
+                onClick={handleRotate}
+                icon="rotate_right"
+              >
                 تدوير
               </Button>
               <Button
@@ -258,7 +284,9 @@ export default function PrescriptionDetailsPage() {
                   <p className="text-card-title font-bold text-on-surface truncate">
                     د. {prescription.doctorName}{" "}
                     {section && (
-                      <span className="font-normal text-on-surface-variant">({section.name})</span>
+                      <span className="font-normal text-on-surface-variant">
+                        ({section.name})
+                      </span>
                     )}
                   </p>
                 </div>
@@ -273,23 +301,36 @@ export default function PrescriptionDetailsPage() {
                   className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-surface-container-low transition-colors text-on-surface font-medium"
                 >
                   <div className="flex items-center gap-2">
-                    <Icon name="folder_open" className="text-[22px] text-on-surface-variant" />
+                    <Icon
+                      name="folder_open"
+                      className="text-[22px] text-on-surface-variant"
+                    />
                     <span>تفاصيل إضافية (العيادة، الملاحظات)</span>
                   </div>
-                  <Icon name={showExtraDetails ? "keyboard_arrow_up" : "keyboard_arrow_down"} />
+                  <Icon
+                    name={
+                      showExtraDetails
+                        ? "keyboard_arrow_up"
+                        : "keyboard_arrow_down"
+                    }
+                  />
                 </button>
 
                 {showExtraDetails && (
                   <div className="p-4 bg-surface-container-low rounded-xl mt-2 flex flex-col gap-3 text-body-default">
                     {prescription.clinicName && (
                       <p>
-                        <span className="font-bold text-primary-container">العيادة: </span>
+                        <span className="font-bold text-primary-container">
+                          العيادة:{" "}
+                        </span>
                         {prescription.clinicName}
                       </p>
                     )}
                     {prescription.note && (
                       <p>
-                        <span className="font-bold text-primary-container">ملاحظات: </span>
+                        <span className="font-bold text-primary-container">
+                          ملاحظات:{" "}
+                        </span>
                         {prescription.note}
                       </p>
                     )}
@@ -362,17 +403,28 @@ export default function PrescriptionDetailsPage() {
         </div>
       )}
       {/* === مودال تأكيد الحذف === */}
-      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} maxWidthClassName="max-w-sm">
+      <Modal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        maxWidthClassName="max-w-sm"
+      >
         <div className="flex flex-col gap-4 text-center">
           <div className="w-16 h-16 rounded-full bg-error-container text-error mx-auto flex items-center justify-center">
             <Icon name="warning" className="text-[36px]" />
           </div>
-          <h3 className="text-section-title text-on-surface">هل أنت متأكد من الحذف؟</h3>
+          <h3 className="text-section-title text-on-surface">
+            هل أنت متأكد من الحذف؟
+          </h3>
           <p className="text-body-muted text-on-surface-variant">
             هيتم حذف هذه الروشتة نهائيًا ومش هينفع نرجعها تاني.
           </p>
           <div className="flex flex-col gap-2 pt-2">
-            <Button variant="destructive" fullWidth onClick={handleConfirmDelete} disabled={deleting}>
+            <Button
+              variant="destructive"
+              fullWidth
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+            >
               {deleting ? "جاري الحذف..." : "نعم، تأكيد الحذف"}
             </Button>
             <button
@@ -389,7 +441,9 @@ export default function PrescriptionDetailsPage() {
       {/* === مودال التعديل === */}
       <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>
         <div className="flex items-center justify-between">
-          <h3 className="text-section-title text-primary-container">تعديل بيانات الروشتة</h3>
+          <h3 className="text-section-title text-primary-container">
+            تعديل بيانات الروشتة
+          </h3>
           <button
             type="button"
             aria-label="إغلاق النافذة"
@@ -416,7 +470,11 @@ export default function PrescriptionDetailsPage() {
           value={editClinicName}
           onChange={(e) => setEditClinicName(e.target.value)}
         />
-        <TextAreaField label="ملاحظات إضافية" value={editNote} onChange={(e) => setEditNote(e.target.value)} />
+        <TextAreaField
+          label="ملاحظات إضافية"
+          value={editNote}
+          onChange={(e) => setEditNote(e.target.value)}
+        />
 
         <div className="flex items-center gap-3 pt-2">
           <Button fullWidth onClick={handleSaveEdit} disabled={savingEdit}>
