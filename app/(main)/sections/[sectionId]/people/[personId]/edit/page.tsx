@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { PersonForm } from "@/components/PersonForm";
-import { TopAppBar } from "@/components/ui/TopAppBar";
+import { NotificationBell, TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
-import Icon from "@/components/ui/Icon";
 import { getPerson, updatePerson } from "@/lib/repository";
 import type { Person } from "@/lib/types";
 
@@ -37,18 +35,7 @@ export default function EditPersonPage() {
 
   return (
     <>
-      <TopAppBar
-        logoSrc="/logo1.png"
-        trailing={
-          <Link
-            href="/notifications"
-            aria-label="مركز التنبيهات"
-            className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-          >
-            <Icon name="notifications" className="text-[26px]" />
-          </Link>
-        }
-      />
+      <TopAppBar logoSrc="/logo1.png" trailing={<NotificationBell />} />
       <TopBar title="تعديل بيانات الشخص" onBack={() => router.back()} />
       <PersonForm
         initialPerson={person}

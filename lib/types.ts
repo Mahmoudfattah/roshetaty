@@ -30,3 +30,15 @@ export interface Prescription {
   note?: string;
   createdAt: string;
 }
+
+export type NotificationKind = "reminder" | "activity" | "security";
+
+export interface AppNotification {
+  id: string;
+  kind: NotificationKind;
+  title: string;
+  message: string;
+  createdAt: string;
+  unread: boolean;
+  href?: string;
+}

@@ -1,6 +1,12 @@
 import JSZip from "jszip";
 import { db } from "./db";
-import { getSections, getPeople, getAllPrescriptions, replaceAllData } from "./repository";
+import {
+  getSections,
+  getPeople,
+  getAllPrescriptions,
+  replaceAllData,
+  addAppNotification,
+} from "./repository";
 import type { Section, Person, Prescription } from "./types";
 
 const BACKUP_VERSION = 1;
@@ -35,7 +41,7 @@ export async function exportBackup(): Promise<Blob> {
   const imagesFolder = zip.folder("images");
   const allKeys = await db.keys();
   const imageKeys = allKeys.filter(
-    (key): key is string => typeof key === "string" && key.startsWith("image:")
+    (key): key is string => typeof key === "string" && key.startsWith("image:"),
   );
 
   for (const key of imageKeys) {
@@ -46,7 +52,14 @@ export async function exportBackup(): Promise<Blob> {
     }
   }
 
-  return zip.generateAsync({ type: "blob" });
+  const result = await zip.generateAsync({ type: "blob" });
+  await addAppNotification({
+    kind: "security",
+    title: "تم تصدير نسخة احتياطية",
+    message: "تم تجهيز نسخة من بياناتك وصورك وحفظها على جهازك.",
+    href: "/account",
+  });
+  return result;
 }
 
 /** بتقرأ ملف نسخة احتياطية وترجّع كل البيانات والصور — بتستبدل أي بيانات حالية بالكامل */
@@ -68,7 +81,9 @@ export async function importBackup(file: File): Promise<void> {
     imagesFolder.forEach((relativePath, zipEntry) => {
       if (zipEntry.dir) return;
       restoreJobs.push(
-        zipEntry.async("blob").then((blob) => db.set(`image:${relativePath}`, blob))
+        zipEntry
+          .async("blob")
+          .then((blob) => db.set(`image:${relativePath}`, blob)),
       );
     });
     await Promise.all(restoreJobs);
@@ -78,5 +93,11 @@ export async function importBackup(file: File): Promise<void> {
     sections: data.sections ?? [],
     people: data.people ?? [],
     prescriptions: data.prescriptions ?? [],
+  });
+  await addAppNotification({
+    kind: "security",
+    title: "تمت استعادة نسخة احتياطية",
+    message: "تم استبدال بيانات الأرشيف بالنسخة الاحتياطية المختارة.",
+    href: "/account",
   });
 }

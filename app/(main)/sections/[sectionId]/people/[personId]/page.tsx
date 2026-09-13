@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { TopAppBar } from "@/components/ui/TopAppBar";
+import { NotificationBell, TopAppBar } from "@/components/ui/TopAppBar";
 import { Button } from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import {
@@ -99,18 +99,7 @@ export default function PersonPage() {
 
   return (
     <>
-      <TopAppBar
-        logoSrc="/logo1.png"
-        trailing={
-          <Link
-            href="/notifications"
-            aria-label="مركز التنبيهات"
-            className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-          >
-            <Icon name="notifications" className="text-[26px]" />
-          </Link>
-        }
-      />
+      <TopAppBar logoSrc="/logo1.png" trailing={<NotificationBell />} />
 
       <TopBar
         title="  "

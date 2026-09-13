@@ -1,13 +1,94 @@
 import { db, saveImage } from "./db";
 import { compressImage } from "./image";
-import type { Section, Person, Prescription } from "./types";
+import type {
+  Section,
+  Person,
+  Prescription,
+  AppNotification,
+  NotificationKind,
+} from "./types";
 
 const SECTIONS_KEY = "sections";
 const PEOPLE_KEY = "people";
 const PRESCRIPTIONS_KEY = "prescriptions";
+const NOTIFICATIONS_KEY = "notifications";
+
+function broadcastNotificationChange(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("notifications:changed"));
+  }
+}
 
 async function list<T>(key: string): Promise<T[]> {
   return (await db.get<T[]>(key)) ?? [];
+}
+
+async function recordNotification(input: {
+  kind: NotificationKind;
+  title: string;
+  message: string;
+  href?: string;
+}): Promise<void> {
+  try {
+    const notifications = await list<AppNotification>(NOTIFICATIONS_KEY);
+    const notification: AppNotification = {
+      id: crypto.randomUUID(),
+      ...input,
+      createdAt: new Date().toISOString(),
+      unread: true,
+    };
+    await db.set(
+      NOTIFICATIONS_KEY,
+      [notification, ...notifications].slice(0, 100),
+    );
+    broadcastNotificationChange();
+  } catch (error) {
+    console.error("Failed to record notification", error);
+  }
+}
+
+export async function addAppNotification(input: {
+  kind: NotificationKind;
+  title: string;
+  message: string;
+  href?: string;
+}): Promise<void> {
+  await recordNotification(input);
+}
+
+export async function getNotifications(): Promise<AppNotification[]> {
+  return (await list<AppNotification>(NOTIFICATIONS_KEY)).sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  );
+}
+
+export async function markNotificationRead(
+  notificationId: string,
+): Promise<void> {
+  const notifications = await getNotifications();
+  await db.set(
+    NOTIFICATIONS_KEY,
+    notifications.map((notification) =>
+      notification.id === notificationId
+        ? { ...notification, unread: false }
+        : notification,
+    ),
+  );
+  broadcastNotificationChange();
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  const notifications = await getNotifications();
+  await db.set(
+    NOTIFICATIONS_KEY,
+    notifications.map((notification) => ({ ...notification, unread: false })),
+  );
+  broadcastNotificationChange();
+}
+
+export async function clearNotifications(): Promise<void> {
+  await db.set(NOTIFICATIONS_KEY, []);
+  broadcastNotificationChange();
 }
 
 /**
@@ -47,6 +128,12 @@ export async function addSection(name: string, icon: string): Promise<Section> {
     createdAt: new Date().toISOString(),
   };
   await db.set(SECTIONS_KEY, [...sections, section]);
+  await recordNotification({
+    kind: "activity",
+    title: "تمت إضافة قسم طبي",
+    message: `تمت إضافة قسم ${name} إلى أرشيفك.`,
+    href: "/manage-sections",
+  });
   return section;
 }
 
@@ -59,6 +146,12 @@ export async function updateSection(
     s.id === sectionId ? { ...s, name: updates.name, icon: updates.icon } : s,
   );
   await db.set(SECTIONS_KEY, updated);
+  await recordNotification({
+    kind: "activity",
+    title: "تم تعديل قسم طبي",
+    message: `تم تحديث بيانات قسم ${updates.name}.`,
+    href: "/manage-sections",
+  });
 }
 
 export async function deleteSection(sectionId: string): Promise<void> {
@@ -75,6 +168,12 @@ export async function deleteSection(sectionId: string): Promise<void> {
     (p) => p.sectionId !== sectionId,
   );
   await db.set(PRESCRIPTIONS_KEY, remainingPrescriptions);
+  await recordNotification({
+    kind: "activity",
+    title: "تم حذف قسم طبي",
+    message: "تم حذف القسم وكل الملفات المرتبطة به.",
+    href: "/manage-sections",
+  });
 }
 
 // ============ الأشخاص ============
@@ -111,6 +210,12 @@ export async function addPerson(input: {
     createdAt: new Date().toISOString(),
   };
   await db.set(PEOPLE_KEY, [...people, person]);
+  await recordNotification({
+    kind: "activity",
+    title: "تمت إضافة فرد للعائلة",
+    message: `تم إنشاء ملف ${input.name} وحفظه في الأرشيف.`,
+    href: `/sections/${input.sectionId}/people/${person.id}`,
+  });
   return person;
 }
 
@@ -136,6 +241,12 @@ export async function updatePerson(
       : person,
   );
   await db.set(PEOPLE_KEY, updated);
+  await recordNotification({
+    kind: "activity",
+    title: "تم تعديل بيانات فرد",
+    message: `تم تحديث بيانات ${updates.name}.`,
+    href: `/sections/${existing.sectionId}/people/${personId}`,
+  });
 }
 
 export async function deletePerson(personId: string): Promise<void> {
@@ -146,6 +257,11 @@ export async function deletePerson(personId: string): Promise<void> {
     (p) => p.personId !== personId,
   );
   await db.set(PRESCRIPTIONS_KEY, remainingPrescriptions);
+  await recordNotification({
+    kind: "activity",
+    title: "تم حذف ملف فرد",
+    message: "تم حذف الملف والروشتات المرتبطة به.",
+  });
 }
 
 // ============ الروشتات ============
@@ -194,6 +310,12 @@ export async function addPrescription(input: {
     createdAt: new Date().toISOString(),
   };
   await db.set(PRESCRIPTIONS_KEY, [...all, prescription]);
+  await recordNotification({
+    kind: "reminder",
+    title: "تم حفظ روشتة جديدة",
+    message: "تمت إضافة روشتة جديدة إلى الأرشيف الطبي.",
+    href: `/sections/${input.sectionId}/people/${input.personId}/prescriptions/${prescription.id}`,
+  });
   return prescription;
 }
 
@@ -207,6 +329,9 @@ export async function updatePrescription(
   },
 ): Promise<void> {
   const all = await getAllPrescriptions();
+  const existing = all.find(
+    (prescription) => prescription.id === prescriptionId,
+  );
   const updated = all.map((p) =>
     p.id === prescriptionId
       ? {
@@ -219,6 +344,14 @@ export async function updatePrescription(
       : p,
   );
   await db.set(PRESCRIPTIONS_KEY, updated);
+  await recordNotification({
+    kind: "activity",
+    title: "تم تعديل بيانات روشتة",
+    message: "تم تحديث تاريخ الروشتة وتفاصيلها.",
+    href: existing
+      ? `/sections/${existing.sectionId}/people/${existing.personId}/prescriptions/${prescriptionId}`
+      : "/prescriptions",
+  });
 }
 
 export async function deletePrescription(
@@ -229,6 +362,11 @@ export async function deletePrescription(
     PRESCRIPTIONS_KEY,
     all.filter((p) => p.id !== prescriptionId),
   );
+  await recordNotification({
+    kind: "activity",
+    title: "تم حذف روشتة",
+    message: "تم حذف الروشتة من الأرشيف.",
+  });
 }
 
 /** عدد روشتات كل شخص — مفيدة لعرض شيبة "٣ روشتات" جنب اسمه من غير ما تجيب كل الداتا */

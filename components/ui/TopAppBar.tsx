@@ -1,7 +1,10 @@
-import { ReactNode } from "react";
+"use client";
+
+import { ReactNode, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Icon from "./Icon";
+import { getNotifications } from "@/lib/repository";
 
 interface TopAppBarProps {
   /** مسار الشعار (Logo) */
@@ -26,15 +29,7 @@ export function TopAppBar({
   onBack,
   avatarSrc,
   // خلينا زرار التنبيهات هو العنصر الافتراضي في اليمين
-  trailing = (
-    <Link
-      href="/notifications"
-      aria-label="مركز التنبيهات"
-      className="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-    >
-      <Icon name="notifications" className="text-[26px]" />
-    </Link>
-  ),
+  trailing = <NotificationBell />,
 }: TopAppBarProps) {
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
@@ -90,5 +85,37 @@ export function TopAppBar({
         {trailing && <div className="flex-shrink-0">{trailing}</div>}
       </div>
     </header>
+  );
+}
+
+export function NotificationBell() {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    async function loadCount() {
+      const notifications = await getNotifications();
+      setUnreadCount(
+        notifications.filter((notification) => notification.unread).length,
+      );
+    }
+
+    void loadCount();
+    window.addEventListener("notifications:changed", loadCount);
+    return () => window.removeEventListener("notifications:changed", loadCount);
+  }, []);
+
+  return (
+    <Link
+      href="/notifications"
+      aria-label={`مركز التنبيهات${unreadCount > 0 ? `، ${unreadCount} غير مقروءة` : ""}`}
+      className="relative w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+    >
+      <Icon name="notifications" className="text-[26px]" />
+      {unreadCount > 0 && (
+        <span className="absolute -top-0.5 -end-0.5 min-w-5 h-5 px-1 rounded-full bg-error text-on-error text-[11px] font-bold flex items-center justify-center">
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </span>
+      )}
+    </Link>
   );
 }

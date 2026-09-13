@@ -1,51 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
 import Icon from "@/components/ui/Icon";
+import {
+  clearNotifications,
+  getNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from "@/lib/repository";
+import type { AppNotification, NotificationKind } from "@/lib/types";
+import { formatRelativeArabic } from "@/lib/utils";
 
-type NotificationKind = "reminder" | "activity" | "security";
 type Filter = "all" | "unread";
-
-type AppNotification = {
-  id: string;
-  kind: NotificationKind;
-  title: string;
-  message: string;
-  time: string;
-  unread: boolean;
-  href?: string;
-};
-
-const initialNotifications: AppNotification[] = [
-  {
-    id: "welcome",
-    kind: "activity",
-    title: "أهلاً بيك في روشتاتي",
-    message: "كل روشتات العيلة هتفضل مرتبة وسهلة الوصول في أي وقت.",
-    time: "منذ فترة قصيرة",
-    unread: true,
-  },
-  {
-    id: "backup",
-    kind: "security",
-    title: "بياناتك محفوظة على جهازك",
-    message: "صور الروشتات وبياناتها محفوظة محلياً وبخصوصية كاملة.",
-    time: "أمس",
-    unread: true,
-  },
-  {
-    id: "add-prescription",
-    kind: "reminder",
-    title: "جاهز تضيف روشتة جديدة؟",
-    message: "سجل الروشتة الجديدة واختار الشخص من أفراد العيلة.",
-    time: "منذ يومين",
-    unread: false,
-    href: "/add-prescription",
-  },
-];
 
 const kindConfig: Record<
   NotificationKind,
@@ -69,8 +38,12 @@ const kindConfig: Record<
 };
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
+
+  useEffect(() => {
+    getNotifications().then(setNotifications);
+  }, []);
 
   const unreadCount = notifications.filter(
     (notification) => notification.unread,
@@ -83,7 +56,7 @@ export default function NotificationsPage() {
     [filter, notifications],
   );
 
-  function markAsRead(id: string) {
+  async function markAsRead(id: string) {
     setNotifications((current) =>
       current.map((notification) =>
         notification.id === id
@@ -91,16 +64,19 @@ export default function NotificationsPage() {
           : notification,
       ),
     );
+    await markNotificationRead(id);
   }
 
-  function markAllAsRead() {
+  async function markAllAsRead() {
     setNotifications((current) =>
       current.map((notification) => ({ ...notification, unread: false })),
     );
+    await markAllNotificationsRead();
   }
 
-  function clearNotifications() {
+  async function clearAllNotifications() {
     setNotifications([]);
+    await clearNotifications();
   }
 
   return (
@@ -169,7 +145,7 @@ export default function NotificationsPage() {
               <NotificationItem
                 key={notification.id}
                 notification={notification}
-                onRead={() => markAsRead(notification.id)}
+                onRead={() => void markAsRead(notification.id)}
               />
             ))}
           </div>
@@ -180,7 +156,7 @@ export default function NotificationsPage() {
         {notifications.length > 0 && (
           <button
             type="button"
-            onClick={clearNotifications}
+            onClick={clearAllNotifications}
             className="self-center flex items-center gap-2 min-h-touch-min px-4 text-label-caption font-bold text-error hover:bg-error-container/30 rounded-full transition-colors"
           >
             <Icon name="delete_sweep" className="text-[19px]" />
@@ -255,7 +231,7 @@ function NotificationItem({
             {notification.title}
           </h2>
           <span className="text-label-caption text-outline whitespace-nowrap">
-            {notification.time}
+            {formatRelativeArabic(notification.createdAt)}
           </span>
         </div>
         <p className="text-body-muted text-on-surface-variant leading-relaxed">
