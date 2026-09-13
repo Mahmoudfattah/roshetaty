@@ -40,6 +40,7 @@ export function PersonForm({
 }: PersonFormProps) {
   const avatarCameraInputRef = useRef<HTMLInputElement>(null);
   const avatarGalleryInputRef = useRef<HTMLInputElement>(null);
+  const avatarRequestRef = useRef(0);
   const existingAvatarUrl = useImageUrl(initialPerson?.avatarBlobId);
   const [name, setName] = useState(initialPerson?.name ?? "");
   const [relation, setRelation] = useState<string | null>(
@@ -74,20 +75,29 @@ export function PersonForm({
 
   async function handleAvatarChange(file: File | undefined) {
     if (!file) return;
+    const requestId = ++avatarRequestRef.current;
     setProcessingPhoto(true);
     try {
       const compressed = await compressImage(file, {
         maxDimension: 400,
         quality: 0.85,
       });
+      if (requestId !== avatarRequestRef.current) return;
       setAvatarFile(compressed);
       setAvatarPreview(URL.createObjectURL(compressed));
       setSaveError(null);
     } catch {
+      if (requestId !== avatarRequestRef.current) return;
       setSaveError("حصلت مشكلة أثناء تجهيز الصورة. جرّب تاني.");
     } finally {
-      setProcessingPhoto(false);
+      if (requestId === avatarRequestRef.current) setProcessingPhoto(false);
     }
+  }
+
+  function openAvatarPicker(input: HTMLInputElement | null) {
+    if (!input || processingPhoto) return;
+    input.value = "";
+    input.click();
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -126,7 +136,7 @@ export function PersonForm({
             <button
               type="button"
               aria-label="اختيار صورة شخصية"
-              onClick={() => avatarGalleryInputRef.current?.click()}
+              onClick={() => openAvatarPicker(avatarGalleryInputRef.current)}
               disabled={processingPhoto}
               className="w-22 h-22 rounded-full bg-surface-container-lowest shadow-md flex items-center justify-center transition-transform active:scale-95 overflow-hidden relative disabled:opacity-70"
             >
@@ -157,6 +167,9 @@ export function PersonForm({
             capture="user"
             className="hidden"
             onChange={(e) => handleAvatarChange(e.target.files?.[0])}
+            onClick={(e) => {
+              e.currentTarget.value = "";
+            }}
           />
           <input
             ref={avatarGalleryInputRef}
@@ -164,11 +177,14 @@ export function PersonForm({
             accept="image/*"
             className="hidden"
             onChange={(e) => handleAvatarChange(e.target.files?.[0])}
+            onClick={(e) => {
+              e.currentTarget.value = "";
+            }}
           />
           <div className="flex items-center gap-2 mt-3">
             <button
               type="button"
-              onClick={() => avatarCameraInputRef.current?.click()}
+              onClick={() => openAvatarPicker(avatarCameraInputRef.current)}
               disabled={processingPhoto}
               className="h-10 px-3 rounded-full bg-primary-fixed text-primary-container text-label-caption font-bold flex items-center gap-1.5 disabled:opacity-50"
             >
@@ -180,7 +196,7 @@ export function PersonForm({
             </button>
             <button
               type="button"
-              onClick={() => avatarGalleryInputRef.current?.click()}
+              onClick={() => openAvatarPicker(avatarGalleryInputRef.current)}
               disabled={processingPhoto}
               className="h-10 px-3 rounded-full bg-surface-container text-on-surface-variant text-label-caption font-bold flex items-center gap-1.5 disabled:opacity-50"
             >

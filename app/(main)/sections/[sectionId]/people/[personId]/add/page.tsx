@@ -26,6 +26,7 @@ export default function AddPrescriptionPage() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
+  const photoRequestRef = useRef(0);
 
   const [person, setPerson] = useState<Person | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -54,22 +55,31 @@ export default function AddPrescriptionPage() {
     const selected = e.target.files?.[0];
     if (!selected) return;
 
+    const requestId = ++photoRequestRef.current;
     setProcessingPhoto(true);
     try {
       const compressed = await compressImage(selected, {
         maxDimension: 1800,
         quality: 0.85,
       });
+      if (requestId !== photoRequestRef.current) return;
       if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
       previewUrlRef.current = URL.createObjectURL(compressed);
       setFile(compressed);
       setPreviewUrl(previewUrlRef.current);
       setSaveError(null);
     } catch {
+      if (requestId !== photoRequestRef.current) return;
       setSaveError("حصلت مشكلة أثناء تجهيز الصورة. جرّب تاني.");
     } finally {
-      setProcessingPhoto(false);
+      if (requestId === photoRequestRef.current) setProcessingPhoto(false);
     }
+  }
+
+  function openPhotoPicker(input: HTMLInputElement | null) {
+    if (!input || processingPhoto) return;
+    input.value = "";
+    input.click();
   }
 
   async function handleSave() {
@@ -106,7 +116,7 @@ export default function AddPrescriptionPage() {
         {!previewUrl ? (
           <button
             type="button"
-            onClick={() => galleryInputRef.current?.click()}
+            onClick={() => openPhotoPicker(galleryInputRef.current)}
             disabled={processingPhoto}
             className="mt-2 mb-6 flex flex-col items-center justify-center gap-3 w-full h-56 rounded-2xl border-2 border-dashed border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-colors disabled:opacity-70"
           >
@@ -147,7 +157,7 @@ export default function AddPrescriptionPage() {
                     تم اختيار الصورة
                   </span>
                 </div>
-                <h2 className="text-section-title text-on-surface mb-0.5 leading-snug">
+                <h2 className="text-section-title text-sm sm:text-xl text-on-surface mb-0.5 leading-snug">
                   جاهز للحفظ
                 </h2>
                 <p className="text-body-muted text-on-surface-variant">
@@ -157,7 +167,7 @@ export default function AddPrescriptionPage() {
             </div>
             <button
               type="button"
-              onClick={() => galleryInputRef.current?.click()}
+              onClick={() => openPhotoPicker(galleryInputRef.current)}
               disabled={processingPhoto}
               className="text-secondary text-label-prominent font-bold text-center py-1 hover:underline disabled:opacity-50"
             >
@@ -172,6 +182,9 @@ export default function AddPrescriptionPage() {
           accept="image/*"
           capture="environment"
           onChange={handleFileChange}
+          onClick={(e) => {
+            e.currentTarget.value = "";
+          }}
           className="hidden"
         />
         <input
@@ -179,6 +192,9 @@ export default function AddPrescriptionPage() {
           type="file"
           accept="image/*"
           onChange={handleFileChange}
+          onClick={(e) => {
+            e.currentTarget.value = "";
+          }}
           className="hidden"
         />
 
@@ -186,7 +202,7 @@ export default function AddPrescriptionPage() {
           <div className="flex justify-center gap-2 mb-6">
             <button
               type="button"
-              onClick={() => cameraInputRef.current?.click()}
+              onClick={() => openPhotoPicker(cameraInputRef.current)}
               disabled={processingPhoto}
               className="h-10 px-4 rounded-full bg-primary-fixed text-primary-container text-label-caption font-bold flex items-center gap-1.5 disabled:opacity-50"
             >
@@ -195,7 +211,7 @@ export default function AddPrescriptionPage() {
             </button>
             <button
               type="button"
-              onClick={() => galleryInputRef.current?.click()}
+              onClick={() => openPhotoPicker(galleryInputRef.current)}
               disabled={processingPhoto}
               className="h-10 px-4 rounded-full bg-surface-container text-on-surface-variant text-label-caption font-bold flex items-center gap-1.5 disabled:opacity-50"
             >
