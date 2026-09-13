@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import Icon from "@/components/ui/Icon";
@@ -8,11 +8,14 @@ import { PersonAvatar } from "@/components/ui/ListRow";
 import { useImageUrl } from "@/lib/hooks/useImageUrl";
 import { toArabicDigits } from "@/lib/utils";
 import { getPeople } from "@/lib/repository";
+import { exportBackup, importBackup } from "@/lib/backup";
 import type { Person } from "@/lib/types";
 
 export default function AccountPage() {
   const [people, setPeople] = useState<Person[] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [backupBusy, setBackupBusy] = useState(false);
+  const backupInputRef = useRef<HTMLInputElement>(null);
   const avatarUrl = useImageUrl(people?.[0]?.avatarBlobId);
 
   useEffect(() => {
@@ -22,6 +25,40 @@ export default function AccountPage() {
   function showToast(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(null), 2500);
+  }
+
+  async function handleExport() {
+    if (backupBusy) return;
+    setBackupBusy(true);
+    try {
+      const blob = await exportBackup();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `rowshatati-backup-${new Date().toISOString().slice(0, 10)}.zip`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("تم تصدير النسخة الاحتياطية");
+    } catch {
+      showToast("حصلت مشكلة أثناء تصدير النسخة");
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+
+  async function handleImport(file: File | undefined) {
+    if (!file || backupBusy) return;
+    setBackupBusy(true);
+    try {
+      await importBackup(file);
+      setPeople(await getPeople());
+      showToast("تمت استعادة النسخة الاحتياطية");
+    } catch {
+      showToast("ملف النسخة الاحتياطية غير صالح");
+    } finally {
+      setBackupBusy(false);
+      if (backupInputRef.current) backupInputRef.current.value = "";
+    }
   }
 
   return (
@@ -55,7 +92,9 @@ export default function AccountPage() {
             </p>
             <div className="flex items-center gap-1 mt-2 text-secondary text-label-caption">
               <Icon name="cloud_done" className="text-[18px]" />
-              <span className="text-xs sm:text-xl">جميع الأوراق الطبية محفوظة على جهازك</span>
+              <span className="text-xs sm:text-xl">
+                جميع الأوراق الطبية محفوظة على جهازك
+              </span>
             </div>
           </div>
         </section>
@@ -145,9 +184,48 @@ export default function AccountPage() {
             />
             <div className="flex items-center gap-1.5 bg-secondary-fixed text-on-secondary-fixed px-3 py-1.5 rounded-full shrink-0 shadow-sm">
               <Icon name="lock" className="text-[18px]" />
-              <span className="text-label-caption font-bold text-xs sm:text-xl">محلي وآمن</span>
+              <span className="text-label-caption font-bold text-xs sm:text-xl">
+                محلي وآمن
+              </span>
             </div>
           </div>
+        </MenuSection>
+
+        <MenuSection icon="backup" title="النسخ الاحتياطي" count={2}>
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={backupBusy}
+            className="w-full min-h-[64px] px-card-pad py-3.5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-right disabled:opacity-50"
+          >
+            <MenuItemContent
+              icon="download"
+              title="تصدير نسخة احتياطية"
+              subtitle="تنزيل البيانات والصور في ملف واحد"
+            />
+            <Icon name="chevron_left" className="text-outline text-[24px]" />
+          </button>
+          <Divider />
+          <button
+            type="button"
+            onClick={() => backupInputRef.current?.click()}
+            disabled={backupBusy}
+            className="w-full min-h-[64px] px-card-pad py-3.5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-right disabled:opacity-50"
+          >
+            <MenuItemContent
+              icon="upload"
+              title="استعادة نسخة احتياطية"
+              subtitle="استبدال البيانات الحالية من ملف محفوظ"
+            />
+            <Icon name="chevron_left" className="text-outline text-[24px]" />
+          </button>
+          <input
+            ref={backupInputRef}
+            type="file"
+            accept=".zip,application/zip"
+            className="hidden"
+            onChange={(event) => handleImport(event.target.files?.[0])}
+          />
         </MenuSection>
 
         {/* كارت توعوي */}

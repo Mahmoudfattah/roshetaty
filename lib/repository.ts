@@ -9,6 +9,22 @@ async function list<T>(key: string): Promise<T[]> {
   return (await db.get<T[]>(key)) ?? [];
 }
 
+/**
+ * استبدال كل بيانات التطبيق دفعة واحدة — مستخدمة فقط عند استعادة نسخة احتياطية.
+ * لازم تتنادى بعد ما الصور المرتبطة تكون اتحفظت في IndexedDB بالفعل.
+ */
+export async function replaceAllData(data: {
+  sections: Section[];
+  people: Person[];
+  prescriptions: Prescription[];
+}): Promise<void> {
+  await Promise.all([
+    db.set(SECTIONS_KEY, data.sections),
+    db.set(PEOPLE_KEY, data.people),
+    db.set(PRESCRIPTIONS_KEY, data.prescriptions),
+  ]);
+}
+
 // ============ الأقسام الطبية ============
 
 export async function getSections(): Promise<Section[]> {

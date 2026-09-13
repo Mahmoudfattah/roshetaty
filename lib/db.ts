@@ -1,11 +1,13 @@
-import { get, set, createStore } from "idb-keyval";
+import { get, set, keys, createStore } from "idb-keyval";
 
 // لازم تتثبت: npm install idb-keyval
 const store = createStore("rowshatati-db", "keyval");
 
 export const db = {
-  get: <T,>(key: string) => get<T>(key, store),
+  get: <T>(key: string) => get<T>(key, store),
   set: (key: string, value: unknown) => set(key, value, store),
+  /** كل المفاتيح المخزّنة — مستخدمة في التصدير عشان نلاقي كل الصور */
+  keys: () => keys(store),
 };
 
 /** حفظ صورة (روشتة أو أفتار) كـ Blob في IndexedDB، بترجع مفتاحها للتخزين في الـ record */
