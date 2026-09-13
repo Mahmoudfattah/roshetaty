@@ -165,21 +165,15 @@ export function PersonForm({
             type="file"
             accept="image/*"
             capture="user"
-            className="hidden"
+            className="absolute h-px w-px opacity-0"
             onChange={(e) => handleAvatarChange(e.target.files?.[0])}
-            onClick={(e) => {
-              e.currentTarget.value = "";
-            }}
           />
           <input
             ref={avatarGalleryInputRef}
             type="file"
             accept="image/*"
-            className="hidden"
+            className="absolute h-px w-px opacity-0"
             onChange={(e) => handleAvatarChange(e.target.files?.[0])}
-            onClick={(e) => {
-              e.currentTarget.value = "";
-            }}
           />
           <div className="flex items-center gap-2 mt-3">
             <button
