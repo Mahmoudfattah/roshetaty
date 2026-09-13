@@ -1,5 +1,4 @@
 import { db, saveImage } from "./db";
-import { compressImage } from "./image";
 import type { Section, Person, Prescription } from "./types";
 
 const SECTIONS_KEY = "sections";
@@ -98,8 +97,10 @@ export async function addPerson(input: {
   avatarFile?: File;
 }): Promise<Person> {
   const people = await getPeople();
+  // ملاحظة: الملف المستلم هنا متوقّع يكون متضغوط بالفعل من الشاشة اللي بتنادي الدالة دي.
+  // ماتضيفش compressImage() هنا تاني — كان بيحصل ضغط مزدوج وده كان بيسبب فشل متقطع على الموبايل.
   const avatarBlobId = input.avatarFile
-    ? await saveImage(await compressImage(input.avatarFile))
+    ? await saveImage(input.avatarFile)
     : undefined;
 
   const person: Person = {
@@ -123,7 +124,7 @@ export async function updatePerson(
   if (!existing) throw new Error("Person not found");
 
   const avatarBlobId = updates.avatarFile
-    ? await saveImage(await compressImage(updates.avatarFile))
+    ? await saveImage(updates.avatarFile)
     : existing.avatarBlobId;
   const updated = people.map((person) =>
     person.id === personId
@@ -180,7 +181,8 @@ export async function addPrescription(input: {
   note?: string;
 }): Promise<Prescription> {
   const all = await getAllPrescriptions();
-  const imageBlobId = await saveImage(await compressImage(input.imageFile));
+  // ملاحظة: نفس الحكاية — الملف متوقّع يكون متضغوط بالفعل قبل ما يوصل هنا.
+  const imageBlobId = await saveImage(input.imageFile);
 
   const prescription: Prescription = {
     id: crypto.randomUUID(),
@@ -268,6 +270,7 @@ export async function getPrescriptionsWithContext(): Promise<
   }
   return result;
 }
+
 export interface SectionSummary {
   section: Section;
   peopleCount: number;

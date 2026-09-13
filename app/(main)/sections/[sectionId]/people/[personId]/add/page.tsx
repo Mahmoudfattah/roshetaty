@@ -2,11 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { Button } from "@/components/ui/Button";
-import Icon from "@/components/ui/Icon";
+import  Icon  from "@/components/ui/Icon";
 import { TextField } from "@/components/ui/TextField";
 import { TextAreaField } from "@/components/ui/TextAreaField";
 import { getPerson, addPrescription } from "@/lib/repository";
@@ -51,6 +50,16 @@ export default function AddPrescriptionPage() {
     };
   }, []);
 
+  /** بتتأكد إن الصورة فعلًا قابلة للعرض قبل ما نعتبرها جاهزة — بتمسك الملفات المعطوبة/الناقصة */
+  function verifyImageLoads(url: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      const testImg = new window.Image();
+      testImg.onload = () => resolve(true);
+      testImg.onerror = () => resolve(false);
+      testImg.src = url;
+    });
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0];
     if (!selected) return;
@@ -63,13 +72,31 @@ export default function AddPrescriptionPage() {
         quality: 0.85,
       });
       if (requestId !== photoRequestRef.current) return;
+
+      const candidateUrl = URL.createObjectURL(compressed);
+      const isValid = await verifyImageLoads(candidateUrl);
+      if (requestId !== photoRequestRef.current) {
+        URL.revokeObjectURL(candidateUrl);
+        return;
+      }
+
+      if (!isValid) {
+        URL.revokeObjectURL(candidateUrl);
+        console.error("Selected image failed to load (possibly a cloud-only/incomplete file):", selected.name);
+        setSaveError(
+          "الصورة دي مش قابلة للعرض — ممكن تكون لسه بتتنزل من جوجل فوتوز أو تطبيق سحابي تاني. حمّلها على الجهاز الأول وجرب تاني، أو صوّرها بالكاميرا مباشرة."
+        );
+        return;
+      }
+
       if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-      previewUrlRef.current = URL.createObjectURL(compressed);
+      previewUrlRef.current = candidateUrl;
       setFile(compressed);
-      setPreviewUrl(previewUrlRef.current);
+      setPreviewUrl(candidateUrl);
       setSaveError(null);
-    } catch {
+    } catch (error) {
       if (requestId !== photoRequestRef.current) return;
+      console.error("Failed to prepare photo:", error);
       setSaveError("حصلت مشكلة أثناء تجهيز الصورة. جرّب تاني.");
     } finally {
       if (requestId === photoRequestRef.current) setProcessingPhoto(false);
@@ -97,10 +124,10 @@ export default function AddPrescriptionPage() {
       });
       router.push(`/sections/${sectionId}/people/${personId}`);
     } catch (error) {
-      console.error("Failed to save prescription", error);
+      console.error("Failed to save prescription:", error);
       setSaveError("حصلت مشكلة أثناء حفظ الروشتة. جرّب تاني.");
       setErrorToast(
-        "حصلت مشكلة أثناء حفظ الروشتة. تأكد إن مساحة الجهاز مش ممتلئة وجرب تاني.",
+        "حصلت مشكلة أثناء حفظ الروشتة. تأكد إن مساحة الجهاز مش ممتلئة وجرب تاني."
       );
       window.setTimeout(() => setErrorToast(null), 3500);
       setSaving(false);
@@ -140,14 +167,13 @@ export default function AddPrescriptionPage() {
         ) : (
           <div className="bg-surface-container-lowest rounded-xl p-card-pad shadow-sm mb-6 flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <div className="relative w-18 h-18 shrink-0 rounded-xl overflow-hidden shadow-sm bg-surface-container">
-                <Image
+              {/* <img> عادي مقصود هنا: previewUrl رابط blob: من object URL محلي،
+                  next/image مش مُصمم للتعامل مع blob URLs بشكل موثوق */}
+              <div className="relative w-[72px] h-[72px] shrink-0 rounded-xl overflow-hidden shadow-sm bg-surface-container">
+                <img
                   src={previewUrl}
                   alt="معاينة الروشتة"
-                  fill
-                  className="object-cover"
-                  sizes="72px"
-                  unoptimized
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="flex flex-col min-w-0 flex-1">
@@ -219,6 +245,12 @@ export default function AddPrescriptionPage() {
               المعرض
             </button>
           </div>
+        )}
+
+        {!previewUrl && saveError && (
+          <p role="alert" className="text-label-caption text-error text-center mb-4 leading-relaxed">
+            {saveError}
+          </p>
         )}
 
         {previewUrl && (
