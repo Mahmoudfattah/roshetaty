@@ -20,11 +20,11 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-60 flex items-start sm:items-center justify-center overflow-y-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom,0px))]"
       onClick={onClose}
     >
       <div
-        className={`bg-surface-container-lowest w-full ${maxWidthClassName} rounded-2xl p-6 shadow-2xl flex flex-col gap-5`}
+        className={`bg-surface-container-lowest w-full ${maxWidthClassName} max-h-[calc(100dvh-7rem-env(safe-area-inset-bottom,0px))] overflow-y-auto rounded-2xl p-5 shadow-2xl flex flex-col gap-4`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}
