@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { Button } from "@/components/ui/Button";
-import  Icon  from "@/components/ui/Icon";
+import Icon from "@/components/ui/Icon";
 import { TextField } from "@/components/ui/TextField";
 import { TextAreaField } from "@/components/ui/TextAreaField";
 import { getPerson, addPrescription } from "@/lib/repository";
@@ -39,7 +39,6 @@ export default function AddPrescriptionPage() {
   const [processingPhoto, setProcessingPhoto] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [errorToast, setErrorToast] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   useEffect(() => {
     getPerson(personId).then((p) => setPerson(p ?? null));
@@ -51,22 +50,9 @@ export default function AddPrescriptionPage() {
     };
   }, []);
 
-  /** بتتأكد إن الصورة فعلًا قابلة للعرض قبل ما نعتبرها جاهزة — بتمسك الملفات المعطوبة/الناقصة */
-  function verifyImageLoads(url: string): Promise<boolean> {
-    return new Promise((resolve) => {
-      const testImg = new window.Image();
-      testImg.onload = () => resolve(true);
-      testImg.onerror = () => resolve(false);
-      testImg.src = url;
-    });
-  }
-
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0];
     if (!selected) return;
-
-    const rawInfo = `الملف الأصلي: ${selected.name} | نوعه: ${selected.type || "غير معروف"} | حجمه: ${(selected.size / 1024).toFixed(0)} كيلوبايت`;
-    setDebugInfo(rawInfo);
 
     const requestId = ++photoRequestRef.current;
     setProcessingPhoto(true);
@@ -77,28 +63,11 @@ export default function AddPrescriptionPage() {
       });
       if (requestId !== photoRequestRef.current) return;
 
-      setDebugInfo(
-        `${rawInfo}\nبعد المعالجة: ${compressed.name} | نوعه: ${compressed.type} | حجمه: ${(compressed.size / 1024).toFixed(0)} كيلوبايت`
-      );
-
       const candidateUrl = URL.createObjectURL(compressed);
-      const isValid = await verifyImageLoads(candidateUrl);
       if (requestId !== photoRequestRef.current) {
         URL.revokeObjectURL(candidateUrl);
         return;
       }
-
-      if (!isValid) {
-        URL.revokeObjectURL(candidateUrl);
-        setDebugInfo((prev) => `${prev}\n❌ فشل تحميل الصورة الناتجة في <img> — الملف نفسه معطوب أو صيغته مش مدعومة.`);
-        console.error("Selected image failed to load:", selected.name, selected.type, selected.size);
-        setSaveError(
-          "الصورة دي مش قابلة للعرض. اضغط مطولًا على الصندوق اللي فوق ده وابعته للمطوّر."
-        );
-        return;
-      }
-
-      setDebugInfo((prev) => `${prev}\n✅ نجحت المعاينة`);
       if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
       previewUrlRef.current = candidateUrl;
       setFile(compressed);
@@ -106,8 +75,6 @@ export default function AddPrescriptionPage() {
       setSaveError(null);
     } catch (error) {
       if (requestId !== photoRequestRef.current) return;
-      const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
-      setDebugInfo((prev) => `${prev}\n❌ استثناء أثناء المعالجة: ${message}`);
       console.error("Failed to prepare photo:", error);
       setSaveError("حصلت مشكلة أثناء تجهيز الصورة. جرّب تاني.");
     } finally {
@@ -139,7 +106,7 @@ export default function AddPrescriptionPage() {
       console.error("Failed to save prescription:", error);
       setSaveError("حصلت مشكلة أثناء حفظ الروشتة. جرّب تاني.");
       setErrorToast(
-        "حصلت مشكلة أثناء حفظ الروشتة. تأكد إن مساحة الجهاز مش ممتلئة وجرب تاني."
+        "حصلت مشكلة أثناء حفظ الروشتة. تأكد إن مساحة الجهاز مش ممتلئة وجرب تاني.",
       );
       window.setTimeout(() => setErrorToast(null), 3500);
       setSaving(false);
@@ -223,7 +190,7 @@ export default function AddPrescriptionPage() {
           onClick={(e) => {
             e.currentTarget.value = "";
           }}
-          className="hidden"
+          className="absolute h-px w-px opacity-0"
         />
         <input
           ref={galleryInputRef}
@@ -233,7 +200,7 @@ export default function AddPrescriptionPage() {
           onClick={(e) => {
             e.currentTarget.value = "";
           }}
-          className="hidden"
+          className="absolute h-px w-px opacity-0"
         />
 
         {!previewUrl && (
@@ -260,20 +227,12 @@ export default function AddPrescriptionPage() {
         )}
 
         {!previewUrl && saveError && (
-          <p role="alert" className="text-label-caption text-error text-center mb-4 leading-relaxed">
+          <p
+            role="alert"
+            className="text-label-caption text-error text-center mb-4 leading-relaxed"
+          >
             {saveError}
           </p>
-        )}
-
-        {debugInfo && (
-          <div className="mb-6 w-full bg-surface-container-high rounded-lg p-3">
-            <p className="text-label-caption text-on-surface-variant font-bold mb-1">
-              معلومات تشخيصية مؤقتة (لو المشكلة حصلت، صوّر الصندوق ده وابعته):
-            </p>
-            <pre className="text-[11px] leading-relaxed text-on-surface whitespace-pre-wrap select-all font-mono">
-              {debugInfo}
-            </pre>
-          </div>
         )}
 
         {previewUrl && (

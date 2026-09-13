@@ -36,7 +36,6 @@ export default function AddPersonPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [processingAvatar, setProcessingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [errorToast, setErrorToast] = useState<string | null>(null);
 
@@ -62,23 +61,10 @@ export default function AddPersonPage() {
     avatarInputRef.current.click();
   }
 
-  /** بتتأكد إن الصورة فعلًا قابلة للعرض قبل ما نقبلها — بتمسك الملفات المعطوبة/الناقصة (زي صور جوجل فوتوز الأونلاين لسه) */
-  function verifyImageLoads(url: string): Promise<boolean> {
-    return new Promise((resolve) => {
-      const testImg = new window.Image();
-      testImg.onload = () => resolve(true);
-      testImg.onerror = () => resolve(false);
-      testImg.src = url;
-    });
-  }
-
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0];
     e.target.value = "";
     if (!selected) return;
-
-    const rawInfo = `الملف الأصلي: ${selected.name} | نوعه: ${selected.type || "غير معروف"} | حجمه: ${(selected.size / 1024).toFixed(0)} كيلوبايت`;
-    setDebugInfo(rawInfo);
 
     const requestId = ++avatarRequestRef.current;
     setProcessingAvatar(true);
@@ -90,36 +76,11 @@ export default function AddPersonPage() {
       });
       if (requestId !== avatarRequestRef.current) return;
 
-      setDebugInfo(
-        `${rawInfo}\nبعد المعالجة: ${compressed.name} | نوعه: ${compressed.type} | حجمه: ${(compressed.size / 1024).toFixed(0)} كيلوبايت`,
-      );
-
       const candidateUrl = URL.createObjectURL(compressed);
-      const isValid = await verifyImageLoads(candidateUrl);
       if (requestId !== avatarRequestRef.current) {
         URL.revokeObjectURL(candidateUrl);
         return;
       }
-
-      if (!isValid) {
-        URL.revokeObjectURL(candidateUrl);
-        setDebugInfo(
-          (prev) =>
-            `${prev}\n❌ فشل تحميل الصورة الناتجة في <img> — الملف نفسه اللي فشل معطوب أو صيغته مش مدعومة.`,
-        );
-        console.error(
-          "Selected avatar failed to load:",
-          selected.name,
-          selected.type,
-          selected.size,
-        );
-        setAvatarError(
-          "الصورة دي مش قابلة للعرض. اضغط مطولًا على الرسالة اللي فوق دي وابعتها للمطوّر.",
-        );
-        return;
-      }
-
-      setDebugInfo((prev) => `${prev}\n✅ نجحت المعاينة`);
       if (avatarPreviewRef.current)
         URL.revokeObjectURL(avatarPreviewRef.current);
       avatarPreviewRef.current = candidateUrl;
@@ -127,11 +88,6 @@ export default function AddPersonPage() {
       setAvatarPreview(candidateUrl);
     } catch (error) {
       if (requestId !== avatarRequestRef.current) return;
-      const message =
-        error instanceof Error
-          ? `${error.name}: ${error.message}`
-          : String(error);
-      setDebugInfo((prev) => `${prev}\n❌ استثناء أثناء المعالجة: ${message}`);
       console.error("Failed to prepare avatar:", error);
       setAvatarError("حصلت مشكلة أثناء تجهيز الصورة. جرّب تاني.");
     } finally {
@@ -226,16 +182,6 @@ export default function AddPersonPage() {
             >
               {avatarError}
             </p>
-          )}
-          {debugInfo && (
-            <div className="mt-3 w-full max-w-xs bg-surface-container-high rounded-lg p-3">
-              <p className="text-label-caption text-on-surface-variant font-bold mb-1">
-                معلومات تشخيصية مؤقتة (لو المشكلة حصلت، صوّر الصندوق ده وابعته):
-              </p>
-              <pre className="text-[11px] leading-relaxed text-on-surface whitespace-pre-wrap select-all font-mono">
-                {debugInfo}
-              </pre>
-            </div>
           )}
         </div>
 
