@@ -5,14 +5,21 @@ import { useParams, useRouter } from "next/navigation";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { Button } from "@/components/ui/Button";
-import Icon  from "@/components/ui/Icon";
+import Icon from "@/components/ui/Icon";
 import { TextField } from "@/components/ui/TextField";
 import { addPerson, getSection } from "@/lib/repository";
 import { compressImage } from "@/lib/image";
 import type { Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const RELATIONS = ["الوالد", "الوالدة", "الزوج/الزوجة", "الابن", "الابنة", "الجد/الجدة"];
+const RELATIONS = [
+  "الوالد",
+  "الوالدة",
+  "الزوج/الزوجة",
+  "الابن",
+  "الابنة",
+  "الجد/الجدة",
+];
 
 export default function AddPersonPage() {
   const { sectionId } = useParams<{ sectionId: string }>();
@@ -39,13 +46,20 @@ export default function AddPersonPage() {
 
   useEffect(() => {
     return () => {
-      if (avatarPreviewRef.current) URL.revokeObjectURL(avatarPreviewRef.current);
+      if (avatarPreviewRef.current)
+        URL.revokeObjectURL(avatarPreviewRef.current);
     };
   }, []);
 
   function toggleRelation(value: string) {
     setRelation((current) => (current === value ? null : value));
     if (value !== "أخرى") setCustomRelation("");
+  }
+
+  function openAvatarPicker() {
+    if (processingAvatar || !avatarInputRef.current) return;
+    avatarInputRef.current.value = "";
+    avatarInputRef.current.click();
   }
 
   /** بتتأكد إن الصورة فعلًا قابلة للعرض قبل ما نقبلها — بتمسك الملفات المعطوبة/الناقصة (زي صور جوجل فوتوز الأونلاين لسه) */
@@ -70,11 +84,14 @@ export default function AddPersonPage() {
     setProcessingAvatar(true);
     setAvatarError(null);
     try {
-      const compressed = await compressImage(selected, { maxDimension: 400, quality: 0.85 });
+      const compressed = await compressImage(selected, {
+        maxDimension: 400,
+        quality: 0.85,
+      });
       if (requestId !== avatarRequestRef.current) return;
 
       setDebugInfo(
-        `${rawInfo}\nبعد المعالجة: ${compressed.name} | نوعه: ${compressed.type} | حجمه: ${(compressed.size / 1024).toFixed(0)} كيلوبايت`
+        `${rawInfo}\nبعد المعالجة: ${compressed.name} | نوعه: ${compressed.type} | حجمه: ${(compressed.size / 1024).toFixed(0)} كيلوبايت`,
       );
 
       const candidateUrl = URL.createObjectURL(compressed);
@@ -86,22 +103,34 @@ export default function AddPersonPage() {
 
       if (!isValid) {
         URL.revokeObjectURL(candidateUrl);
-        setDebugInfo((prev) => `${prev}\n❌ فشل تحميل الصورة الناتجة في <img> — الملف نفسه اللي فشل معطوب أو صيغته مش مدعومة.`);
-        console.error("Selected avatar failed to load:", selected.name, selected.type, selected.size);
+        setDebugInfo(
+          (prev) =>
+            `${prev}\n❌ فشل تحميل الصورة الناتجة في <img> — الملف نفسه اللي فشل معطوب أو صيغته مش مدعومة.`,
+        );
+        console.error(
+          "Selected avatar failed to load:",
+          selected.name,
+          selected.type,
+          selected.size,
+        );
         setAvatarError(
-          "الصورة دي مش قابلة للعرض. اضغط مطولًا على الرسالة اللي فوق دي وابعتها للمطوّر."
+          "الصورة دي مش قابلة للعرض. اضغط مطولًا على الرسالة اللي فوق دي وابعتها للمطوّر.",
         );
         return;
       }
 
       setDebugInfo((prev) => `${prev}\n✅ نجحت المعاينة`);
-      if (avatarPreviewRef.current) URL.revokeObjectURL(avatarPreviewRef.current);
+      if (avatarPreviewRef.current)
+        URL.revokeObjectURL(avatarPreviewRef.current);
       avatarPreviewRef.current = candidateUrl;
       setAvatarFile(compressed);
       setAvatarPreview(candidateUrl);
     } catch (error) {
       if (requestId !== avatarRequestRef.current) return;
-      const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+      const message =
+        error instanceof Error
+          ? `${error.name}: ${error.message}`
+          : String(error);
       setDebugInfo((prev) => `${prev}\n❌ استثناء أثناء المعالجة: ${message}`);
       console.error("Failed to prepare avatar:", error);
       setAvatarError("حصلت مشكلة أثناء تجهيز الصورة. جرّب تاني.");
@@ -116,7 +145,10 @@ export default function AddPersonPage() {
 
     setSaving(true);
     try {
-      const finalRelation = relation === "أخرى" ? customRelation.trim() || undefined : relation ?? undefined;
+      const finalRelation =
+        relation === "أخرى"
+          ? customRelation.trim() || undefined
+          : (relation ?? undefined);
       const person = await addPerson({
         sectionId,
         name: name.trim(),
@@ -126,7 +158,9 @@ export default function AddPersonPage() {
       router.push(`/sections/${sectionId}/people/${person.id}`);
     } catch {
       setSaving(false);
-      setErrorToast("حصلت مشكلة أثناء الحفظ. تأكد إن مساحة الجهاز مش ممتلئة وجرب تاني.");
+      setErrorToast(
+        "حصلت مشكلة أثناء الحفظ. تأكد إن مساحة الجهاز مش ممتلئة وجرب تاني.",
+      );
       window.setTimeout(() => setErrorToast(null), 3500);
     }
   }
@@ -153,13 +187,17 @@ export default function AddPersonPage() {
             <button
               type="button"
               aria-label="اختيار صورة شخصية"
-              onClick={() => avatarInputRef.current?.click()}
+              onClick={openAvatarPicker}
               disabled={processingAvatar}
               className="w-[88px] h-[88px] rounded-full bg-surface-container-lowest shadow-md flex items-center justify-center transition-transform active:scale-95 overflow-hidden relative disabled:opacity-70"
             >
               {/* <img> عادي مقصود: avatarPreview رابط blob: محلي، next/image مش مُصمم للتعامل معاه بشكل موثوق */}
               {avatarPreview ? (
-                <img src={avatarPreview} alt="معاينة الصورة" className="w-full h-full object-cover" />
+                <img
+                  src={avatarPreview}
+                  alt="معاينة الصورة"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <Icon
                   name={processingAvatar ? "hourglass_top" : "person"}
@@ -175,14 +213,17 @@ export default function AddPersonPage() {
             ref={avatarInputRef}
             type="file"
             accept="image/*"
-            className="hidden"
+            className="absolute h-px w-px opacity-0"
             onChange={handleAvatarChange}
           />
           <span className="mt-3 text-label-caption text-on-surface-variant font-medium">
             صورة شخصية (اختياري)
           </span>
           {avatarError && (
-            <p role="alert" className="mt-2 text-label-caption text-error text-center max-w-xs leading-relaxed">
+            <p
+              role="alert"
+              className="mt-2 text-label-caption text-error text-center max-w-xs leading-relaxed"
+            >
               {avatarError}
             </p>
           )}
@@ -212,11 +253,17 @@ export default function AddPersonPage() {
           {/* صلة القرابة */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <label className="text-label-prominent text-on-surface">صلة القرابة</label>
+              <label className="text-label-prominent text-on-surface">
+                صلة القرابة
+              </label>
               <span className="text-label-caption text-outline">اختياري</span>
             </div>
 
-            <div role="radiogroup" aria-label="صلة القرابة" className="grid grid-cols-3 gap-2.5">
+            <div
+              role="radiogroup"
+              aria-label="صلة القرابة"
+              className="grid grid-cols-3 gap-2.5"
+            >
               {RELATIONS.map((r) => (
                 <button
                   key={r}
@@ -228,7 +275,7 @@ export default function AddPersonPage() {
                     "h-12 px-3 rounded-xl shadow-sm text-label-prominent flex items-center justify-center text-center leading-snug transition-all active:scale-95",
                     relation === r
                       ? "bg-primary-container text-on-primary"
-                      : "bg-surface-container-lowest text-on-surface"
+                      : "bg-surface-container-lowest text-on-surface",
                   )}
                 >
                   {r}
@@ -245,7 +292,7 @@ export default function AddPersonPage() {
                 "w-full h-12 px-4 rounded-xl shadow-sm text-label-prominent flex items-center justify-center gap-2 transition-all active:scale-95",
                 relation === "أخرى"
                   ? "bg-primary-container text-on-primary"
-                  : "bg-surface-container-lowest text-on-surface"
+                  : "bg-surface-container-lowest text-on-surface",
               )}
             >
               <Icon name="tune" className="text-[20px]" />
@@ -268,16 +315,24 @@ export default function AddPersonPage() {
               <Icon name="folder_special" className="text-[22px]" />
             </div>
             <div className="flex flex-col gap-1">
-              <h2 className="text-label-prominent text-on-surface">ملف منظم وآمن</h2>
+              <h2 className="text-label-prominent text-on-surface">
+                ملف منظم وآمن
+              </h2>
               <p className="text-label-caption text-on-surface-variant leading-relaxed">
-                هنعمل سجل خاص بيحفظ كل روشتات الشخص ده منظمة بالتاريخ، عشان تسهّل عليك مراجعتها مع الدكتور.
+                هنعمل سجل خاص بيحفظ كل روشتات الشخص ده منظمة بالتاريخ، عشان
+                تسهّل عليك مراجعتها مع الدكتور.
               </p>
             </div>
           </div>
 
           {/* الأزرار */}
           <div className="mt-4 flex flex-col gap-3">
-            <Button type="submit" icon="how_to_reg" fullWidth disabled={!name.trim() || saving}>
+            <Button
+              type="submit"
+              icon="how_to_reg"
+              fullWidth
+              disabled={!name.trim() || saving}
+            >
               {saving ? "جاري الحفظ..." : "حفظ وإضافة"}
             </Button>
             <button

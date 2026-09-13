@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import { TextField } from "@/components/ui/TextField";
@@ -149,13 +148,10 @@ export function PersonForm({
               className="w-22 h-22 rounded-full bg-surface-container-lowest shadow-md flex items-center justify-center transition-transform active:scale-95 overflow-hidden relative disabled:opacity-70"
             >
               {previewUrl ? (
-                <Image
+                <img
                   src={previewUrl}
                   alt="معاينة الصورة"
-                  fill
-                  className="object-cover"
-                  sizes="88px"
-                  unoptimized
+                  className="h-full w-full object-cover"
                 />
               ) : (
                 <Icon
