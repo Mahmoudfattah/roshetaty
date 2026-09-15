@@ -71,7 +71,8 @@
 
   /* ---------- Fonts ---------- */
   /* IBM Plex Sans لأرقام/حروف لاتينية + Cairo لدعم عربي كامل، محملين عبر next/font في layout.tsx */
-  --font-sans: var(--font-ibm-plex-sans), var(--font-cairo), ui-sans-serif, sans-serif;
+  --font-sans:
+    var(--font-ibm-plex-sans), var(--font-cairo), ui-sans-serif, sans-serif;
 
   /* ---------- Type scale ---------- */
   /* كل توكن هنا بيطلع كـ utility class: text-app-title, text-screen-title... */
@@ -150,10 +151,14 @@
 
 /* Material Symbols Outlined — لازم <link> الخط في layout.tsx */
 .material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 500,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
-button{
+button {
   cursor: pointer;
 }
 
@@ -307,7 +312,9 @@ button{
   border-radius: 1rem;
   background: var(--color-primary-container);
   color: var(--color-on-primary);
-  font: 700 1rem var(--font-cairo), sans-serif;
+  font:
+    700 1rem var(--font-cairo),
+    sans-serif;
 }
 
 .intro-secondary-button {
@@ -337,10 +344,23 @@ button{
   color: var(--color-primary-container);
 }
 
-.splash-mark > .material-symbols-outlined:first-child { font-size: 3.4rem; }
-.splash-mark-plus { position: absolute; font-size: 1.45rem !important; }
-.intro-splash h1 { margin: 1.25rem 0 0; font-size: 2rem; font-weight: 700; }
-.intro-splash p { margin: 0.25rem 0 0; color: var(--color-secondary-fixed); font-size: 1rem; }
+.splash-mark > .material-symbols-outlined:first-child {
+  font-size: 3.4rem;
+}
+.splash-mark-plus {
+  position: absolute;
+  font-size: 1.45rem !important;
+}
+.intro-splash h1 {
+  margin: 1.25rem 0 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+.intro-splash p {
+  margin: 0.25rem 0 0;
+  color: var(--color-secondary-fixed);
+  font-size: 1rem;
+}
 
 /* Shared illustration pieces */
 .illustration-tag,
@@ -358,9 +378,17 @@ button{
   font-weight: 600;
   white-space: nowrap;
 }
-.illustration-tag { padding: 0.7rem 0.9rem; }
-.illustration-tag .material-symbols-outlined { color: var(--color-secondary); font-size: 1.2rem; }
-.illustration-badge { padding: 0.7rem; color: var(--color-secondary); }
+.illustration-tag {
+  padding: 0.7rem 0.9rem;
+}
+.illustration-tag .material-symbols-outlined {
+  color: var(--color-secondary);
+  font-size: 1.2rem;
+}
+.illustration-badge {
+  padding: 0.7rem;
+  color: var(--color-secondary);
+}
 
 /* Capture */
 .capture-phone {
@@ -383,36 +411,159 @@ button{
   padding: 0.7rem;
   text-align: start;
 }
-.capture-screen > .material-symbols-outlined { font-size: 1.35rem; }
-.capture-rule { display: block; width: 100%; height: 0.12rem; margin-top: 3.2rem; background: var(--color-secondary); }
-.capture-rule-short { width: 70%; margin-top: 1.3rem; background: var(--color-outline-variant); }
-.capture-camera { position: absolute; right: 1rem; bottom: 0.45rem; color: var(--color-secondary-fixed); font-size: 1.35rem; }
-.capture-tag { top: 2rem; right: 0; }
-.capture-badge { bottom: 2.2rem; left: 0.25rem; }
+.capture-screen > .material-symbols-outlined {
+  font-size: 1.35rem;
+}
+.capture-rule {
+  display: block;
+  width: 100%;
+  height: 0.12rem;
+  margin-top: 3.2rem;
+  background: var(--color-secondary);
+}
+.capture-rule-short {
+  width: 70%;
+  margin-top: 1.3rem;
+  background: var(--color-outline-variant);
+}
+.capture-camera {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.45rem;
+  color: var(--color-secondary-fixed);
+  font-size: 1.35rem;
+}
+.capture-tag {
+  top: 2rem;
+  right: 0;
+}
+.capture-badge {
+  bottom: 2.2rem;
+  left: 0.25rem;
+}
 
 /* Organization */
-.organize-folder { position: absolute; display: flex; flex-direction: column; border-radius: 1.25rem; }
-.organize-folder-back { top: 2.1rem; left: 50%; width: 13rem; height: 10rem; transform: translateX(-50%) rotate(-5deg); background: var(--color-secondary-fixed); color: var(--color-secondary); padding: 1rem; text-align: start; }
-.organize-folder-back > .material-symbols-outlined { font-size: 2rem; }
-.organize-folder-front { z-index: 1; top: 4rem; left: 50%; width: 14rem; height: 11rem; transform: translateX(-50%); background: var(--color-surface-container-lowest); color: var(--color-primary-container); padding: 1rem; text-align: start; box-shadow: 0 0.25rem 0.75rem #00254b12; }
-.organize-folder-front > .material-symbols-outlined { font-size: 2.25rem; }
-.organize-folder-front span { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.55rem; color: var(--color-on-surface-variant); font-size: 0.75rem; }
-.organize-folder-front span .material-symbols-outlined { color: var(--color-secondary); font-size: 1.1rem; }
-.organize-tag { top: 1.1rem; left: 0; }
+.organize-folder {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.25rem;
+}
+.organize-folder-back {
+  top: 2.1rem;
+  left: 50%;
+  width: 13rem;
+  height: 10rem;
+  transform: translateX(-50%) rotate(-5deg);
+  background: var(--color-secondary-fixed);
+  color: var(--color-secondary);
+  padding: 1rem;
+  text-align: start;
+}
+.organize-folder-back > .material-symbols-outlined {
+  font-size: 2rem;
+}
+.organize-folder-front {
+  z-index: 1;
+  top: 4rem;
+  left: 50%;
+  width: 14rem;
+  height: 11rem;
+  transform: translateX(-50%);
+  background: var(--color-surface-container-lowest);
+  color: var(--color-primary-container);
+  padding: 1rem;
+  text-align: start;
+  box-shadow: 0 0.25rem 0.75rem #00254b12;
+}
+.organize-folder-front > .material-symbols-outlined {
+  font-size: 2.25rem;
+}
+.organize-folder-front span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+}
+.organize-folder-front span .material-symbols-outlined {
+  color: var(--color-secondary);
+  font-size: 1.1rem;
+}
+.organize-tag {
+  top: 1.1rem;
+  left: 0;
+}
 
 /* Privacy */
-.privacy-device { position: absolute; top: 1.3rem; left: 50%; width: 10rem; height: 14rem; transform: translateX(-50%); border: 0.45rem solid var(--color-primary); border-radius: 1.4rem; background: var(--color-surface-container-lowest); padding: 1.2rem 0.8rem; }
-.privacy-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.4rem; height: 100%; border-radius: 0.8rem; background: var(--color-surface-container-low); color: var(--color-secondary); }
-.privacy-screen .material-symbols-outlined:first-child { font-size: 2.2rem; }
-.privacy-screen .material-symbols-outlined:last-child { color: var(--color-primary-container); font-size: 2.3rem; }
-.privacy-shield { position: absolute; z-index: 2; right: 1.8rem; top: 5rem; display: grid; place-items: center; width: 4rem; height: 4rem; border-radius: 50%; background: var(--color-secondary-fixed); color: var(--color-primary-container); box-shadow: 0 0.25rem 0.75rem #00254b18; }
-.privacy-shield .material-symbols-outlined { font-size: 2.3rem; }
-.privacy-tag { bottom: 1.4rem; left: 0; }
+.privacy-device {
+  position: absolute;
+  top: 1.3rem;
+  left: 50%;
+  width: 10rem;
+  height: 14rem;
+  transform: translateX(-50%);
+  border: 0.45rem solid var(--color-primary);
+  border-radius: 1.4rem;
+  background: var(--color-surface-container-lowest);
+  padding: 1.2rem 0.8rem;
+}
+.privacy-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  height: 100%;
+  border-radius: 0.8rem;
+  background: var(--color-surface-container-low);
+  color: var(--color-secondary);
+}
+.privacy-screen .material-symbols-outlined:first-child {
+  font-size: 2.2rem;
+}
+.privacy-screen .material-symbols-outlined:last-child {
+  color: var(--color-primary-container);
+  font-size: 2.3rem;
+}
+.privacy-shield {
+  position: absolute;
+  z-index: 2;
+  right: 1.8rem;
+  top: 5rem;
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: var(--color-secondary-fixed);
+  color: var(--color-primary-container);
+  box-shadow: 0 0.25rem 0.75rem #00254b18;
+}
+.privacy-shield .material-symbols-outlined {
+  font-size: 2.3rem;
+}
+.privacy-tag {
+  bottom: 1.4rem;
+  left: 0;
+}
 
 @media (max-width: 370px) {
-  .intro-content { padding-top: 1rem; }
-  .intro-illustration { height: 15rem; flex-basis: 15rem; }
-  .intro-content h1 { font-size: 1.3rem; }
-  .intro-content > p { font-size: 0.85rem; }
-  .intro-note { font-size: 0.68rem; }
+  .intro-content {
+    padding-top: 1rem;
+  }
+  .intro-illustration {
+    height: 15rem;
+    flex-basis: 15rem;
+  }
+  .intro-content h1 {
+    font-size: 1.3rem;
+  }
+  .intro-content > p {
+    font-size: 0.85rem;
+  }
+  .intro-note {
+    font-size: 0.68rem;
+  }
 }

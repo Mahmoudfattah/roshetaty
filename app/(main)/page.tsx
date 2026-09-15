@@ -72,14 +72,22 @@ function Onboarding({ screen, onScreenChange, onFinish }: OnboardingProps) {
       </header>
 
       <section className="intro-content" aria-live="polite">
-        <div className={`intro-illustration intro-illustration-${slide.illustration}`} aria-hidden="true">
+        <div
+          className={`intro-illustration intro-illustration-${slide.illustration}`}
+          aria-hidden="true"
+        >
           {slide.illustration === "capture" && <CaptureIllustration />}
           {slide.illustration === "organize" && <OrganizeIllustration />}
           {slide.illustration === "privacy" && <PrivacyIllustration />}
         </div>
         <h1>{slide.title}</h1>
         <p>{slide.description}</p>
-        {slide.note && <div className="intro-note"><Icon name="lock" />{slide.note}</div>}
+        {slide.note && (
+          <div className="intro-note">
+            <Icon name="lock" />
+            {slide.note}
+          </div>
+        )}
         <PaginationDots active={screen - 1} />
         <button
           type="button"
@@ -89,7 +97,11 @@ function Onboarding({ screen, onScreenChange, onFinish }: OnboardingProps) {
           {slide.buttonLabel}
         </button>
         {slide.isFinal && (
-          <button type="button" className="intro-secondary-button" onClick={onFinish}>
+          <button
+            type="button"
+            className="intro-secondary-button"
+            onClick={onFinish}
+          >
             تخطي
           </button>
         )}
@@ -114,7 +126,9 @@ function SplashScreen() {
 function PaginationDots({ active }: { active: number }) {
   return (
     <div className="intro-pagination" aria-label={`الخطوة ${active + 1} من 3`}>
-      {[0, 1, 2].map((dot) => <span key={dot} className={dot === active ? "active" : ""} />)}
+      {[0, 1, 2].map((dot) => (
+        <span key={dot} className={dot === active ? "active" : ""} />
+      ))}
     </div>
   );
 }
@@ -130,8 +144,13 @@ function CaptureIllustration() {
         </div>
         <Icon name="photo_camera" className="capture-camera" />
       </div>
-      <span className="illustration-tag capture-tag"><Icon name="verified" />حفظ فوري</span>
-      <span className="illustration-badge"><Icon name="auto_awesome" /></span>
+      <span className="illustration-tag capture-tag">
+        <Icon name="verified" />
+        حفظ فوري
+      </span>
+      <span className="illustration-badge">
+        <Icon name="auto_awesome" />
+      </span>
     </div>
   );
 }
@@ -139,13 +158,24 @@ function CaptureIllustration() {
 function OrganizeIllustration() {
   return (
     <div className="organize-illustration">
-      <div className="organize-folder organize-folder-back"><Icon name="folder" /></div>
+      <div className="organize-folder organize-folder-back">
+        <Icon name="folder" />
+      </div>
       <div className="organize-folder organize-folder-front">
         <Icon name="folder_shared" />
-        <span><Icon name="description" />باطنة</span>
-        <span><Icon name="visibility" />عيون</span>
+        <span>
+          <Icon name="description" />
+          باطنة
+        </span>
+        <span>
+          <Icon name="visibility" />
+          عيون
+        </span>
       </div>
-      <span className="illustration-tag organize-tag"><Icon name="person" />ملف الوالد</span>
+      <span className="illustration-tag organize-tag">
+        <Icon name="person" />
+        ملف الوالد
+      </span>
     </div>
   );
 }
@@ -154,10 +184,18 @@ function PrivacyIllustration() {
   return (
     <div className="privacy-illustration">
       <div className="privacy-device">
-        <div className="privacy-screen"><Icon name="description" /><Icon name="lock" /></div>
+        <div className="privacy-screen">
+          <Icon name="description" />
+          <Icon name="lock" />
+        </div>
       </div>
-      <span className="privacy-shield"><Icon name="shield_lock" /></span>
-      <span className="illustration-tag privacy-tag"><Icon name="phone_android" />على جهازك فقط</span>
+      <span className="privacy-shield">
+        <Icon name="shield_lock" />
+      </span>
+      <span className="illustration-tag privacy-tag">
+        <Icon name="phone_android" />
+        على جهازك فقط
+      </span>
     </div>
   );
 }
@@ -172,18 +210,20 @@ const ONBOARDING_SLIDES: OnboardingSlide[] = [
   },
   {
     title: "منظمة حسب القسم والشخص",
-    description: "كل فرد في العيلة له ملفه، وكل قسم طبي له مكانه. تلاقي أي روشتة في ثواني.",
+    description:
+      "كل فرد في العيلة له ملفه، وكل قسم طبي له مكانه. تلاقي أي روشتة في ثواني.",
     illustration: "organize",
     buttonLabel: "التالي",
   },
   {
     title: "بياناتك في جهازك بس",
-    description: "كل صورك وبياناتك محفوظة محليًا على موبايلك، من غير إنترنت ومن غير مشاركة مع أي حد.",
+    description:
+      "كل صورك وبياناتك محفوظة محليًا على موبايلك، من غير إنترنت ومن غير مشاركة مع أي حد.",
     illustration: "privacy",
     buttonLabel: "ابدأ الآن",
     isFinal: true,
   },
-] ;
+];
 
 type OnboardingSlide = {
   title: string;
@@ -275,7 +315,7 @@ function HomeContent() {
 
         {sections?.length === 0 && (
           <p className="text-body-muted text-on-surface-variant text-center py-10">
-          ];
+            ];
           </p>
         )}
       </div>
