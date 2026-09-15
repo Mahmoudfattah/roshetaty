@@ -71,7 +71,8 @@
 
   /* ---------- Fonts ---------- */
   /* IBM Plex Sans لأرقام/حروف لاتينية + Cairo لدعم عربي كامل، محملين عبر next/font في layout.tsx */
-  --font-sans: var(--font-ibm-plex-sans), var(--font-cairo), ui-sans-serif, sans-serif;
+  --font-sans:
+    var(--font-ibm-plex-sans), var(--font-cairo), ui-sans-serif, sans-serif;
 
   /* ---------- Type scale ---------- */
   /* كل توكن هنا بيطلع كـ utility class: text-app-title, text-screen-title... */
@@ -150,9 +151,543 @@
 
 /* Material Symbols Outlined — لازم <link> الخط في layout.tsx */
 .material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 500,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
-button{
+button {
   cursor: pointer;
+}
+
+.onboarding {
+  min-height: 100svh;
+  background: #f7f9fc;
+  color: #191c1e;
+  overflow: hidden;
+  direction: rtl;
+}
+.onboarding-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.8rem max(2rem, 5vw) 0;
+  font-size: 1.05rem;
+}
+.step-label {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-weight: 600;
+}
+.step-number {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: #cce2ff;
+  color: #00254b;
+  font-size: 1.4rem;
+}
+.skip-button,
+.explain-button {
+  border: 0;
+  background: transparent;
+  color: #43474f;
+  font: inherit;
+}
+.onboarding-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 42rem;
+  min-height: calc(100svh - 6rem);
+  margin: 0 auto;
+  padding: 4rem 2rem 2rem;
+  text-align: center;
+}
+.onboarding-art {
+  position: relative;
+  width: min(100%, 34rem);
+  height: 25rem;
+  margin-bottom: 2rem;
+}
+.onboarding-copy h1 {
+  margin: 0 0 1rem;
+  color: #111820;
+  font-size: clamp(1.8rem, 5vw, 2.35rem);
+  font-weight: 700;
+}
+.onboarding-logo {
+  width: 9rem;
+  height: auto;
+  margin: 0 auto 1rem;
+}
+.onboarding-copy p {
+  max-width: 36rem;
+  margin: 0;
+  color: #43474f;
+  font-size: 1.15rem;
+  line-height: 2;
+}
+.onboarding-note,
+.onboarding-pills span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 2rem;
+  background: #eceef1;
+  color: #43474f;
+}
+.onboarding-note span,
+.onboarding-pills b {
+  color: #006497;
+  font-size: 1.35rem;
+}
+.onboarding-pills {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.onboarding-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 2.8rem 0 2rem;
+  direction: ltr;
+}
+.onboarding-dots span {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: #c4cbd6;
+}
+.onboarding-dots span.active {
+  width: 3.2rem;
+  border-radius: 1rem;
+  background: #00254b;
+}
+.onboarding-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: min(100%, 38rem);
+  min-height: 5.4rem;
+  border: 0;
+  border-radius: 1.6rem;
+  background: #00254b;
+  color: #fff;
+  box-shadow: 0 10px 20px #00254b25;
+  font: 600 1.3rem var(--font-sans);
+  direction: rtl;
+}
+.onboarding-cta span {
+  font-size: 2rem;
+  line-height: 1;
+}
+.explain-button {
+  margin-top: 1.8rem;
+  color: #737780;
+  font-size: 1rem;
+}
+.onboarding-art::before {
+  content: "";
+  position: absolute;
+  inset: 2rem 0 0;
+  border-radius: 2.5rem;
+  background: linear-gradient(135deg, #fff, #e5f1ff);
+}
+.scan-card,
+.organize-card,
+.privacy-card {
+  position: absolute;
+  inset: 0;
+}
+.scan-card::before {
+  content: "";
+  position: absolute;
+  width: 17rem;
+  height: 23rem;
+  left: 50%;
+  top: 1rem;
+  transform: translateX(-50%) rotate(5deg);
+  border-radius: 1.6rem;
+  background: #00254b;
+  box-shadow: 0 1rem 2rem #00254b20;
+}
+.scan-paper {
+  position: absolute;
+  width: 14rem;
+  height: 18rem;
+  left: 50%;
+  top: 3.2rem;
+  transform: translateX(-50%) rotate(5deg);
+  border-radius: 1.2rem;
+  background: white;
+  color: #006497;
+  padding: 1.3rem;
+  text-align: left;
+  font-size: 2rem;
+}
+.scan-paper strong {
+  display: block;
+  margin-top: 11rem;
+  color: #43474f;
+  font-size: 0.85rem;
+}
+.scan-camera {
+  position: absolute;
+  z-index: 1;
+  left: calc(50% - 6rem);
+  top: 4rem;
+  color: #006497;
+  font-size: 2rem;
+}
+.scan-line {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 12rem;
+  width: 12rem;
+  height: 0.2rem;
+  transform: translateX(-50%) rotate(5deg);
+  background: #006497;
+}
+.art-tag {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.8rem 1.3rem;
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 0 0.5rem 1rem #00254b18;
+  color: #191c1e;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tag-save {
+  right: 5%;
+  top: 3rem;
+}
+.tag-sparkle {
+  left: 8%;
+  bottom: 3.5rem;
+  color: #006497;
+  font-size: 1.6rem;
+}
+.organize-card::before {
+  content: "";
+  position: absolute;
+  width: 24rem;
+  height: 17rem;
+  left: 50%;
+  top: 4rem;
+  transform: translateX(-50%);
+  border-radius: 2rem;
+  background: #dce9f1;
+}
+.folder-tab {
+  position: absolute;
+  z-index: 2;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 13rem;
+  padding: 0.9rem;
+  border-radius: 2rem;
+  background: #173b67;
+  color: white;
+  font-weight: 700;
+}
+.medical-card {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 7rem;
+  width: 23rem;
+  height: 12rem;
+  transform: translateX(-50%);
+  border-radius: 2rem;
+  background: white;
+  box-shadow: 0 0.7rem 1rem #00254b16;
+  text-align: right;
+  padding: 1.8rem;
+}
+.medical-icon {
+  float: left;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #173b67;
+  color: white;
+  font-size: 2rem;
+}
+.medical-card i {
+  display: block;
+  width: 7rem;
+  height: 0.8rem;
+  margin: 0.4rem 0;
+  border-radius: 1rem;
+  background: #dce9f1;
+}
+.medical-card b {
+  position: absolute;
+  right: 1.5rem;
+  top: 2rem;
+  padding: 0.6rem 1.8rem;
+  border-radius: 2rem;
+  background: #cce2ff;
+}
+.medical-card hr {
+  border: 0;
+  height: 0.65rem;
+  margin-top: 1.3rem;
+  border-radius: 1rem;
+  background: #eef1f4;
+}
+.tag-mother {
+  left: 0;
+  top: 2rem;
+}
+.tag-eyes {
+  right: 0;
+  bottom: 1rem;
+}
+.privacy-sheet {
+  position: absolute;
+  left: 50%;
+  top: 3rem;
+  width: 19rem;
+  height: 20rem;
+  transform: translateX(-50%);
+  border-radius: 2rem;
+  background: white;
+  box-shadow: 0 1rem 2rem #00254b20;
+  padding-top: 4rem;
+}
+.privacy-sheet::before {
+  content: "";
+  position: absolute;
+  inset: 3rem 1.5rem 1.5rem;
+  border-radius: 1.5rem;
+  background: #f0f3f7;
+}
+.shield {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 7rem;
+  height: 7rem;
+  margin: auto;
+  border-radius: 50%;
+  background: #173b67;
+  color: white;
+  font-size: 4rem;
+}
+.shield small {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.8rem;
+  font-size: 1.5rem;
+}
+.privacy-check {
+  position: absolute;
+  z-index: 2;
+  left: 4rem;
+  top: 10rem;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #3fa66b;
+  color: white;
+  font-size: 1.5rem;
+}
+.tag-cloud {
+  right: 0;
+  top: 1rem;
+}
+.tag-device {
+  left: 0;
+  bottom: 1rem;
+}
+@media (max-width: 520px) {
+  .onboarding-header {
+    padding-inline: 1.5rem;
+  }
+  .onboarding-content {
+    padding: 3rem 1.25rem 1.5rem;
+  }
+  .onboarding-art {
+    height: 22rem;
+  }
+  .medical-card {
+    width: 19rem;
+  }
+  .organize-card::before {
+    width: 20rem;
+  }
+  .tag-mother {
+    left: -1rem;
+  }
+  .tag-eyes {
+    right: -1rem;
+  }
+  .privacy-sheet {
+    width: 17rem;
+  }
+}
+
+.launch-screen {
+  min-height: 100svh;
+  overflow: hidden;
+  background: #f7f9fc;
+  color: #d9eaff;
+  text-align: center;
+}
+.launch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3rem max(2rem, 6vw) 0;
+  color: #d8eaff;
+  font-size: 1rem;
+}
+.launch-saved {
+  opacity: 0.7;
+}
+.launch-family {
+  padding: 0.7rem 1.3rem;
+  border-radius: 2rem;
+  background: #b8c7d7;
+  color: #f7f9fc;
+}
+.launch-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 22vh;
+}
+.launch-art {
+  position: relative;
+  width: 14.5rem;
+  height: 14.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 2.7rem;
+  background: #cce3ff;
+  box-shadow: 0 1.5rem 2.5rem #86a6d833;
+}
+.launch-document {
+  position: relative;
+  width: 3.7rem;
+  height: 5.5rem;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #00254b;
+}
+.document-fold {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-left: 0.22rem solid #00254b;
+  border-bottom: 0.22rem solid #00254b;
+  border-radius: 0 0 0 0.3rem;
+}
+.document-line {
+  position: absolute;
+  right: 0.65rem;
+  height: 0.28rem;
+  border-radius: 1rem;
+  background: #79c5f5;
+}
+.document-line-one {
+  top: 2rem;
+  width: 1.4rem;
+}
+.document-line-two {
+  top: 2.7rem;
+  width: 2rem;
+}
+.launch-document strong {
+  position: absolute;
+  right: 1.3rem;
+  bottom: 0.65rem;
+  font-size: 2rem;
+  line-height: 1;
+}
+.launch-heart {
+  position: absolute;
+  bottom: -1rem;
+  left: -1rem;
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 1.4rem;
+  background: #fff;
+  box-shadow: 0 0.7rem 1rem #00254b20;
+  color: #006497;
+  font-size: 2.6rem;
+}
+.launch-logo {
+  width: 11rem;
+  height: auto;
+  margin-top: 4.5rem;
+  opacity: 0.12;
+}
+.launch-subtitle {
+  margin: 0.3rem 0 1.2rem;
+  color: #d7eaff;
+  font-size: 1.2rem;
+}
+.launch-message {
+  padding: 0.8rem 1.5rem;
+  border-radius: 2rem;
+  background: #aebfd1;
+  color: #bfe0ff;
+  font-size: 1rem;
+}
+.launch-footer {
+  margin-top: 34vh;
+  color: #d7eaff;
+}
+.launch-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  direction: ltr;
+}
+.launch-dots span {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: #cce3ff;
+}
+.launch-footer p {
+  margin-top: 2rem;
+  font-size: 1rem;
+}
+@media (max-width: 520px) {
+  .launch-header {
+    padding-inline: 1.5rem;
+    font-size: 0.85rem;
+  }
+  .launch-content {
+    padding-top: 24vh;
+  }
+  .launch-footer {
+    margin-top: 30vh;
+  }
 }

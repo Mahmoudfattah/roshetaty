@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -18,6 +19,227 @@ interface SectionWithCount extends Section {
 }
 
 export default function HomePage() {
+  const [showOnboarding, setShowOnboarding] = useState<boolean | null>(() =>
+    typeof window === "undefined"
+      ? null
+      : window.localStorage.getItem("roshetaty-onboarding") !== "done",
+  );
+
+  if (showOnboarding === null)
+    return <div className="min-h-screen bg-surface" />;
+  if (showOnboarding)
+    return <Onboarding onFinish={() => setShowOnboarding(false)} />;
+
+  return <HomeContent />;
+}
+
+function Onboarding({ onFinish }: { onFinish: () => void }) {
+  const [step, setStep] = useState(0);
+  const [isLaunching, setIsLaunching] = useState(false);
+
+  useEffect(() => {
+    if (!isLaunching) return;
+
+    const timer = window.setTimeout(() => {
+      window.localStorage.setItem("roshetaty-onboarding", "done");
+      onFinish();
+    }, 1800);
+
+    return () => window.clearTimeout(timer);
+  }, [isLaunching, onFinish]);
+
+  function finish() {
+    window.localStorage.setItem("roshetaty-onboarding", "done");
+    onFinish();
+  }
+
+  if (isLaunching) return <LaunchScreen />;
+
+  return (
+    <main className="onboarding" dir="rtl">
+      <header className="onboarding-header">
+        <div className="step-label">
+          <span className="step-number">{toArabicDigits(step + 1)}</span>
+          <span>الخطوة {toArabicDigits(step + 1)} من ٣</span>
+        </div>
+        <button type="button" className="skip-button" onClick={finish}>
+          تخطي
+        </button>
+      </header>
+
+      <section className="onboarding-content" aria-live="polite">
+        <div
+          className={`onboarding-art onboarding-art-${step + 1}`}
+          aria-hidden="true"
+        >
+          {step === 0 && <ScanIllustration />}
+          {step === 1 && <OrganizeIllustration />}
+          {step === 2 && <PrivacyIllustration />}
+        </div>
+        <div className="onboarding-copy">
+          {step === 2 && (
+            <Image
+              src="/logo.png"
+              alt="روشتاتي"
+              width={180}
+              height={72}
+              className="onboarding-logo"
+            />
+          )}
+          <h1>{ONBOARDING_STEPS[step].title}</h1>
+          <p>{ONBOARDING_STEPS[step].description}</p>
+          {step === 0 && (
+            <div className="onboarding-note">
+              أوراقك الطبية محفوظة بأمان تام على هاتفك <span>▣</span>
+            </div>
+          )}
+          {step === 2 && (
+            <div className="onboarding-pills">
+              <span>
+                خصوصية تامة <b>◈</b>
+              </span>
+              <span>
+                تحكم كامل <b>↻</b>
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="onboarding-dots" aria-label={`الخطوة ${step + 1} من 3`}>
+          {[0, 1, 2].map((dot) => (
+            <span key={dot} className={dot === step ? "active" : ""} />
+          ))}
+        </div>
+        <button
+          type="button"
+          className="onboarding-cta"
+          onClick={
+            step === 2 ? () => setIsLaunching(true) : () => setStep(step + 1)
+          }
+        >
+          {step === 2 ? "ابدأ الآن" : "التالي"}
+          <span aria-hidden="true">{step === 2 ? "→" : "←"}</span>
+        </button>
+        {step === 2 && (
+          <button
+            type="button"
+            className="explain-button"
+            onClick={() => setStep(0)}
+          >
+            تخطّي الشرح
+          </button>
+        )}
+      </section>
+    </main>
+  );
+}
+
+function LaunchScreen() {
+  return (
+    <main className="launch-screen" dir="rtl" aria-live="polite">
+      <div className="launch-header">
+        <span className="launch-saved">حفظ مشفّر　♡</span>
+        <span className="launch-family">● نسخة آمنة للعائلة</span>
+      </div>
+
+      <div className="launch-content">
+        <div className="launch-art" aria-hidden="true">
+          <div className="launch-document">
+            <span className="document-fold" />
+            <span className="document-line document-line-one" />
+            <span className="document-line document-line-two" />
+            <strong>+</strong>
+          </div>
+          <span className="launch-heart">♡</span>
+        </div>
+        <Image
+          src="/logo.png"
+          alt="روشتاتي"
+          width={180}
+          height={72}
+          className="launch-logo"
+        />
+        <p className="launch-subtitle">أرشيف طبي لعائلتك</p>
+        <div className="launch-message">بكل بساطة ووضوح لوالدك وللجميع</div>
+      </div>
+
+      <div className="launch-footer">
+        <div className="launch-dots" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        <p>جاري تجهيز دفتر الوصفات...</p>
+      </div>
+    </main>
+  );
+}
+
+const ONBOARDING_STEPS = [
+  {
+    title: "صوّر روشتك في ثانية",
+    description:
+      "بدل ما الورقة تضيع، صوّرها واحفظها في مكانها الصح على طول وبأعلى جودة خط وقراءة.",
+  },
+  {
+    title: "منظمة حسب القسم والشخص",
+    description:
+      "كل فرد في العيلة له ملف، وكل قسم طبي له مكانه. تلاقي أي روشتة في ثواني.",
+  },
+  {
+    title: "بياناتك في جهازك بس",
+    description:
+      "كل صورك وبياناتك محفوظة محليًا على موبايلك، من غير إنترنت ومن غير مشاركة مع أي حد.",
+  },
+];
+
+function ScanIllustration() {
+  return (
+    <div className="scan-card">
+      <div className="scan-camera">⌾</div>
+      <div className="scan-line" />
+      <div className="scan-paper">
+        ▤<strong>١٠٠٪ وضوح</strong>
+      </div>
+      <span className="art-tag tag-save">حفظ فوري　✥</span>
+      <span className="art-tag tag-sparkle">✦</span>
+    </div>
+  );
+}
+
+function OrganizeIllustration() {
+  return (
+    <div className="organize-card">
+      <div className="folder-tab">ملف الوالد</div>
+      <div className="medical-card">
+        <span className="medical-icon">♧</span>
+        <i />
+        <i />
+        <b>باطنة</b>
+        <hr />
+        <hr />
+      </div>
+      <span className="art-tag tag-mother">الوالدة　♙</span>
+      <span className="art-tag tag-eyes">عيون　◉</span>
+    </div>
+  );
+}
+
+function PrivacyIllustration() {
+  return (
+    <div className="privacy-card">
+      <div className="privacy-sheet">
+        <div className="shield">
+          ♢<small>▣</small>
+        </div>
+        <div className="privacy-check">✓</div>
+      </div>
+      <span className="art-tag tag-cloud">☁ بدون سحابة</span>
+      <span className="art-tag tag-device">تخزين آمن بالجهاز　▣</span>
+    </div>
+  );
+}
+
+function HomeContent() {
   const [sections, setSections] = useState<SectionWithCount[] | null>(null);
   const [people, setPeople] = useState<Person[]>([]);
   const avatarUrl = useImageUrl(people[0]?.avatarBlobId);
