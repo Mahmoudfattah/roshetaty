@@ -27,7 +27,11 @@ type OnboardingProps = {
   onFinish: () => void;
 };
 
-export function Onboarding({ screen, onScreenChange, onFinish }: OnboardingProps) {
+export function Onboarding({
+  screen,
+  onScreenChange,
+  onFinish,
+}: OnboardingProps) {
   const slide = ONBOARDING_SLIDES[screen - 1];
 
   return (
