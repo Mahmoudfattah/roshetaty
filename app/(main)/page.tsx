@@ -18,15 +18,14 @@ interface SectionWithCount extends Section {
 }
 
 export default function HomePage() {
-  const [introScreen, setIntroScreen] = useState<number | null>(() =>
-    typeof window === "undefined"
-      ? null
-      : window.localStorage.getItem("roshetaty-onboarding") === "done"
-        ? null
-        : 0,
-  );
+  const [introScreen, setIntroScreen] = useState<number | null>(0);
 
   useEffect(() => {
+    if (window.localStorage.getItem("roshetaty-onboarding") === "done") {
+      setIntroScreen(null);
+      return;
+    }
+
     if (introScreen !== 0) return;
     const timer = window.setTimeout(() => setIntroScreen(1), 900);
     return () => window.clearTimeout(timer);
