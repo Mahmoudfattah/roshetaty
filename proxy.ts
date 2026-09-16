@@ -4,11 +4,19 @@ const ONBOARDING_COOKIE = "roshetaty-onboarding";
 
 export function proxy(request: NextRequest) {
   const completed = request.cookies.get(ONBOARDING_COOKIE)?.value === "true";
-  const destination = completed ? "/home" : "/onboarding";
+  const pathname = request.nextUrl.pathname;
 
-  return NextResponse.redirect(new URL(destination, request.url));
+  if (completed && (pathname === "/" || pathname === "/onboarding")) {
+    return NextResponse.redirect(new URL("/home", request.url));
+  }
+
+  if (!completed && (pathname === "/" || pathname === "/home")) {
+    return NextResponse.redirect(new URL("/onboarding", request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: "/",
+  matcher: ["/", "/onboarding", "/home"],
 };

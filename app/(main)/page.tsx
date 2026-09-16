@@ -32,6 +32,8 @@ export function Onboarding({
   onScreenChange,
   onFinish,
 }: OnboardingProps) {
+  if (screen === 0) return <SplashScreen />;
+
   const slide = ONBOARDING_SLIDES[screen - 1];
 
   return (
@@ -85,6 +87,16 @@ export function Onboarding({
           </button>
         )}
       </section>
+    </main>
+  );
+}
+
+function SplashScreen() {
+  return (
+    <main className="intro-splash" dir="rtl" aria-label="روشتاتي">
+      <div className="splash-brand-lockup">
+        <img src="/logo white .png" alt="روشتاتي" className="splash-logo" />
+      </div>
     </main>
   );
 }

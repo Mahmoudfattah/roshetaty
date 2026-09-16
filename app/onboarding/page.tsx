@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { completeOnboarding } from "@/app/actions/onboarding";
 import { Onboarding } from "@/app/(main)/page";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [screen, setScreen] = useState(1);
+  const [screen, setScreen] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setScreen(1), 900);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   async function finishOnboarding() {
     await completeOnboarding();

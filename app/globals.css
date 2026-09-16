@@ -226,18 +226,42 @@ button {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 28rem;
+  max-width: min(92vw, 38rem);
   margin: 0 auto;
-  padding: 1.5rem 1.25rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  padding: clamp(1rem, 3.5vh, 2.5rem) clamp(1rem, 4vw, 2rem)
+    calc(1rem + env(safe-area-inset-bottom, 0px));
   text-align: center;
+}
+
+.splash-brand-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(78vw, 34rem);
+  text-align: center;
+}
+
+.splash-logo {
+  display: block;
+  width: min(78vw, 31rem);
+  height: auto;
+  object-fit: contain;
+}
+
+.splash-brand-lockup p {
+  margin: clamp(1rem, 3vw, 1.5rem) 0 0;
+  color: var(--color-secondary-fixed);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.7;
 }
 
 .intro-illustration {
   position: relative;
-  width: min(100%, 22rem);
-  height: 17rem;
-  flex: 0 0 17rem;
-  margin-bottom: 1rem;
+  width: min(100%, 30rem);
+  height: clamp(14rem, 42vh, 24rem);
+  flex: 0 0 clamp(14rem, 42vh, 24rem);
+  margin-bottom: clamp(0.75rem, 2vh, 1.5rem);
+  --intro-art-scale: clamp(0.8, 3.2vw, 1.35);
 }
 
 .intro-illustration::before {
@@ -251,16 +275,16 @@ button {
 .intro-content h1 {
   margin: 0;
   color: var(--color-on-surface);
-  font-size: 1.5rem;
+  font-size: clamp(1.3rem, 2.2vw, 1.75rem);
   font-weight: 700;
   line-height: 1.55;
 }
 
 .intro-content > p {
-  max-width: 23rem;
-  margin: 0.55rem auto 0;
+  max-width: min(90vw, 30rem);
+  margin: clamp(0.35rem, 1vh, 0.7rem) auto 0;
   color: var(--color-on-surface-variant);
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 1.3vw, 1rem);
   font-weight: 400;
   line-height: 1.9;
 }
@@ -269,12 +293,13 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  margin-top: 0.8rem;
+  max-width: 100%;
+  margin-top: clamp(0.5rem, 1.5vh, 0.9rem);
   padding: 0.55rem 0.9rem;
   border-radius: 1rem;
   background: var(--color-surface-container-low);
   color: var(--color-on-surface-variant);
-  font-size: 0.75rem;
+  font-size: clamp(0.68rem, 1vw, 0.8rem);
 }
 
 .intro-note .material-symbols-outlined {
@@ -398,7 +423,8 @@ button {
   left: 50%;
   width: 10rem;
   height: 14rem;
-  transform: translateX(-50%) rotate(5deg);
+  transform: translateX(-50%) rotate(5deg) scale(var(--intro-art-scale));
+  transform-origin: center;
   border-radius: 1.25rem;
   background: var(--color-primary);
 }
@@ -436,10 +462,14 @@ button {
 .capture-tag {
   top: 2rem;
   right: 0;
+  transform: scale(var(--intro-art-scale));
+  transform-origin: top right;
 }
 .capture-badge {
   bottom: 2.2rem;
   left: 0.25rem;
+  transform: scale(var(--intro-art-scale));
+  transform-origin: bottom left;
 }
 
 /* Organization */
@@ -454,7 +484,8 @@ button {
   left: 50%;
   width: 13rem;
   height: 10rem;
-  transform: translateX(-50%) rotate(-5deg);
+  transform: translateX(-50%) rotate(-5deg) scale(var(--intro-art-scale));
+  transform-origin: center;
   background: var(--color-secondary-fixed);
   color: var(--color-secondary);
   padding: 1rem;
@@ -469,7 +500,8 @@ button {
   left: 50%;
   width: 14rem;
   height: 11rem;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(var(--intro-art-scale));
+  transform-origin: center;
   background: var(--color-surface-container-lowest);
   color: var(--color-primary-container);
   padding: 1rem;
@@ -494,6 +526,8 @@ button {
 .organize-tag {
   top: 1.1rem;
   left: 0;
+  transform: scale(var(--intro-art-scale));
+  transform-origin: top left;
 }
 
 /* Privacy */
@@ -503,7 +537,8 @@ button {
   left: 50%;
   width: 10rem;
   height: 14rem;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(var(--intro-art-scale));
+  transform-origin: center;
   border: 0.45rem solid var(--color-primary);
   border-radius: 1.4rem;
   background: var(--color-surface-container-lowest);
@@ -540,6 +575,8 @@ button {
   background: var(--color-secondary-fixed);
   color: var(--color-primary-container);
   box-shadow: 0 0.25rem 0.75rem #00254b18;
+  transform: scale(var(--intro-art-scale));
+  transform-origin: center;
 }
 .privacy-shield .material-symbols-outlined {
   font-size: 2.3rem;
@@ -547,6 +584,8 @@ button {
 .privacy-tag {
   bottom: 1.4rem;
   left: 0;
+  transform: scale(var(--intro-art-scale));
+  transform-origin: bottom left;
 }
 
 @media (max-width: 370px) {
@@ -556,6 +595,7 @@ button {
   .intro-illustration {
     height: 15rem;
     flex-basis: 15rem;
+    --intro-art-scale: 0.74;
   }
   .intro-content h1 {
     font-size: 1.3rem;
@@ -565,5 +605,34 @@ button {
   }
   .intro-note {
     font-size: 0.68rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .intro-content {
+    max-width: min(70vw, 42rem);
+    padding-top: clamp(1.5rem, 4vh, 3rem);
+  }
+
+  .intro-illustration {
+    width: min(70vw, 34rem);
+    --intro-art-scale: clamp(1, 3vw, 1.35);
+  }
+}
+
+@media (max-height: 700px) {
+  .intro-content {
+    padding-top: 0.75rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .intro-illustration {
+    height: min(40vh, 15rem);
+    flex-basis: min(40vh, 15rem);
+    --intro-art-scale: 0.8;
+  }
+
+  .intro-content h1 {
+    font-size: 1.35rem;
   }
 }
