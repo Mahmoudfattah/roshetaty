@@ -636,3 +636,48 @@ button {
     font-size: 1.35rem;
   }
 }
+
+@media (max-width: 767px) {
+  .intro-header {
+    padding-inline: max(1rem, env(safe-area-inset-left, 0px));
+  }
+
+  .intro-content {
+    max-width: 100%;
+    padding-inline: 1rem;
+    padding-top: clamp(0.75rem, 3vh, 1.5rem);
+  }
+
+  .intro-illustration {
+    width: min(100%, 22rem);
+    height: clamp(13rem, 35vh, 17rem);
+    flex-basis: clamp(13rem, 35vh, 17rem);
+    --intro-art-scale: clamp(0.64, 2.8vw, 0.82);
+  }
+
+  .intro-illustration::before {
+    inset: 0.75rem 0 0;
+    border-radius: 1.25rem;
+  }
+
+  .intro-content h1 {
+    max-width: 100%;
+    font-size: clamp(1.15rem, 5vw, 1.45rem);
+  }
+
+  .intro-content > p {
+    max-width: 22rem;
+    font-size: clamp(0.78rem, 3.2vw, 0.92rem);
+    line-height: 1.75;
+  }
+
+  .intro-note {
+    max-width: min(100%, 21rem);
+    padding-inline: 0.7rem;
+  }
+
+  .intro-primary-button {
+    min-height: 3.25rem;
+    flex-basis: 3.25rem;
+  }
+}
