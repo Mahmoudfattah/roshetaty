@@ -119,7 +119,11 @@ export async function getSection(
   return (await getSections()).find((s) => s.id === sectionId);
 }
 
-export async function addSection(name: string, icon: string): Promise<Section> {
+export async function addSection(
+  name: string,
+  icon: string,
+  options: { notify?: boolean } = {},
+): Promise<Section> {
   const sections = await getSections();
   const section: Section = {
     id: crypto.randomUUID(),
@@ -128,12 +132,14 @@ export async function addSection(name: string, icon: string): Promise<Section> {
     createdAt: new Date().toISOString(),
   };
   await db.set(SECTIONS_KEY, [...sections, section]);
-  await recordNotification({
-    kind: "activity",
-    title: "تمت إضافة قسم طبي",
-    message: `تمت إضافة قسم ${name} إلى أرشيفك.`,
-    href: "/manage-sections",
-  });
+  if (options.notify !== false) {
+    await recordNotification({
+      kind: "activity",
+      title: "تمت إضافة قسم طبي",
+      message: `تمت إضافة قسم ${name} إلى أرشيفك.`,
+      href: "/manage-sections",
+    });
+  }
   return section;
 }
 
