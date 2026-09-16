@@ -43,6 +43,23 @@ export default function RootLayout({
       className={`${ibmPlexSans.variable} ${cairo.variable}`}
     >
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                try {
+                  var done = localStorage.getItem("roshetaty-onboarding");
+                  var path = window.location.pathname;
+                  if (done === "true" && path === "/") {
+                    window.location.replace("/home");
+                  } else if (done !== "true" && path === "/") {
+                    window.location.replace("/onboarding");
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         {/* أيقونات Material Symbols المستخدمة في كل شاشات الـ Stitch export */}
         <link
           rel="stylesheet"

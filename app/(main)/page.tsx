@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { OnboardingGate } from "@/components/OnboardingGate";
 import Icon from "@/components/ui/Icon";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { Button } from "@/components/ui/Button";
@@ -19,19 +18,7 @@ interface SectionWithCount extends Section {
 }
 
 export default function HomePage() {
-  return (
-    <OnboardingGate
-      renderOnboarding={(screen, onScreenChange, onFinish) => (
-        <Onboarding
-          screen={screen}
-          onScreenChange={onScreenChange}
-          onFinish={onFinish}
-        />
-      )}
-    >
-      <HomeContent />
-    </OnboardingGate>
-  );
+  return <HomeContent />;
 }
 
 type OnboardingProps = {
@@ -40,7 +27,7 @@ type OnboardingProps = {
   onFinish: () => void;
 };
 
-function Onboarding({ screen, onScreenChange, onFinish }: OnboardingProps) {
+export function Onboarding({ screen, onScreenChange, onFinish }: OnboardingProps) {
   const slide = ONBOARDING_SLIDES[screen - 1];
 
   return (
