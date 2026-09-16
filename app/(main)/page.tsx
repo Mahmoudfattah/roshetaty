@@ -63,7 +63,7 @@ function Onboarding({ screen, onScreenChange, onFinish }: OnboardingProps) {
     <main className="intro-shell" dir="rtl">
       <header className="intro-header">
         <span className="intro-step">
-          <span className=" h-8 w-8 rounded-full flex items-center justify-center bg-[#173b67] text-white">{toArabicDigits(screen)}</span>
+          <span className=" h-8 w-8 rounded-xl flex items-center justify-center bg-primary-container text-white">{toArabicDigits(screen)}</span>
           <span className="font-bold">الخطوة {toArabicDigits(screen)} من ٣</span>
         </span>
         <button type="button" className="intro-skip" onClick={onFinish}>
