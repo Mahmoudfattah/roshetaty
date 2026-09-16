@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { OnboardingGate } from "@/components/OnboardingGate";
 import Icon from "@/components/ui/Icon";
 import { TopAppBar } from "@/components/ui/TopAppBar";
 import { Button } from "@/components/ui/Button";
@@ -18,33 +19,19 @@ interface SectionWithCount extends Section {
 }
 
 export default function HomePage() {
-  const [introScreen, setIntroScreen] = useState<number | null>(0);
-
-  useEffect(() => {
-    if (window.localStorage.getItem("roshetaty-onboarding") === "done") {
-      setIntroScreen(null);
-      return;
-    }
-
-    if (introScreen !== 0) return;
-    const timer = window.setTimeout(() => setIntroScreen(1), 900);
-    return () => window.clearTimeout(timer);
-  }, [introScreen]);
-
-  if (introScreen !== null) {
-    return (
-      <Onboarding
-        screen={introScreen}
-        onScreenChange={setIntroScreen}
-        onFinish={() => {
-          window.localStorage.setItem("roshetaty-onboarding", "done");
-          setIntroScreen(null);
-        }}
-      />
-    );
-  }
-
-  return <HomeContent />;
+  return (
+    <OnboardingGate
+      renderOnboarding={(screen, onScreenChange, onFinish) => (
+        <Onboarding
+          screen={screen}
+          onScreenChange={onScreenChange}
+          onFinish={onFinish}
+        />
+      )}
+    >
+      <HomeContent />
+    </OnboardingGate>
+  );
 }
 
 type OnboardingProps = {
@@ -54,16 +41,18 @@ type OnboardingProps = {
 };
 
 function Onboarding({ screen, onScreenChange, onFinish }: OnboardingProps) {
-  if (screen === 0) return <SplashScreen />;
-
   const slide = ONBOARDING_SLIDES[screen - 1];
 
   return (
     <main className="intro-shell" dir="rtl">
       <header className="intro-header">
         <span className="intro-step">
-          <span className=" h-8 w-8 rounded-xl flex items-center justify-center bg-primary-container text-white">{toArabicDigits(screen)}</span>
-          <span className="font-bold">الخطوة {toArabicDigits(screen)} من ٣</span>
+          <span className=" h-8 w-8 rounded-xl flex items-center justify-center bg-primary-container text-white">
+            {toArabicDigits(screen)}
+          </span>
+          <span className="font-bold">
+            الخطوة {toArabicDigits(screen)} من ٣
+          </span>
         </span>
         <button type="button" className="intro-skip" onClick={onFinish}>
           تخطي
@@ -105,19 +94,6 @@ function Onboarding({ screen, onScreenChange, onFinish }: OnboardingProps) {
           </button>
         )}
       </section>
-    </main>
-  );
-}
-
-function SplashScreen() {
-  return (
-    <main className="intro-splash" dir="rtl" aria-label="روشتاتي">
-      <div className="splash-mark">
-        <Icon name="description" />
-        <Icon name="add" className="splash-mark-plus" />
-      </div>
-      <h1>روشتاتي</h1>
-      <p>أرشيف طبي لعائلتك</p>
     </main>
   );
 }

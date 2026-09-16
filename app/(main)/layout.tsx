@@ -8,10 +8,7 @@ import { ReactNode } from "react";
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen">
-      <main
-        className="flex-1 flex flex-col relative w-full px-screen-margin pt-[calc(5rem+env(safe-area-inset-top,0px))] pb-28 bg-surface"
-        suppressHydrationWarning
-      >
+      <main className="flex-1 flex flex-col relative w-full px-screen-margin pt-[calc(5rem+env(safe-area-inset-top,0px))] pb-28 bg-surface">
         {children}
       </main>
       <BottomNav />
